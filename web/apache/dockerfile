@@ -1,0 +1,62 @@
+FROM php:7.2.34-apache
+
+RUN a2enmod rewrite
+
+RUN apt-get clean
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    libzip-dev \
+    libpq-dev \
+    zip \
+    libpng-dev \
+    libwebp-dev \
+    libjpeg62-turbo-dev \
+    libxpm-dev \
+    libfreetype6-dev
+
+RUN rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-configure zip --with-libzip \
+    && docker-php-ext-install zip
+
+# RUN docker-php-ext-install pdo pdo_pgsql pgsql
+RUN  docker-php-ext-install pdo pdo_pgsql pgsql
+
+RUN docker-php-ext-configure gd \
+    --with-gd \
+    --with-webp-dir \
+    --with-jpeg-dir \
+    --with-png-dir \
+    --with-zlib-dir \
+    --with-xpm-dir \
+    --with-freetype-dir
+
+RUN docker-php-ext-install gd
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+WORKDIR /var/www
+
+RUN composer require aws/aws-sdk-php:2.8.31
+RUN composer require firebase/php-jwt:v3.0.0
+RUN composer require guzzle/guzzle:v3.9.3
+RUN composer require microsoft/windowsazure:v0.4.2
+RUN composer require pear/console_getopt:v1.4.1
+RUN composer require pear/http_request2:v2.3.0
+RUN composer require pear/mail_mime:1.10.0
+RUN composer require pear/mail_mime-decode:1.5.5.2
+RUN composer require pear/net_url2:v2.2.1
+RUN composer require pear/pear-core-minimal:v1.10.1
+RUN composer require pear/pear_exception:v1.0.0
+RUN composer require symfony/event-dispatcher:v2.8.11
+RUN composer require hidehalo/nanoid-php:v1.1.12
+
+COPY ./apache/php.ini "$PHP_INI_DIR/php.ini"
+
+RUN rm -rf "$PHP_INI_DIR/php.ini-development"
+RUN rm -rf "$PHP_INI_DIR/php.ini-production"
+
+RUN usermod -u 1000 www-data
+RUN usermod -u 1001 www-data
+
+# CMD ["php-fpm"]

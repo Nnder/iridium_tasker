@@ -1,0 +1,59 @@
+version: '3.5'
+
+services:
+  bot:
+    build: 
+      context: ./
+      dockerfile: ./docker/development.dockerfile
+    image: bot:dev
+    container_name: telegram_bot
+    networks:
+      - postgres
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/home/node/app
+      - bot_node:/home/node/app/node_modules
+    restart: unless-stopped
+
+  postgresdb:
+    container_name: db_testdb
+    image: postgres
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "25433:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:
+  bot_node:
+
+ 
