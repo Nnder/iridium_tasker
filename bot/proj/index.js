@@ -38,89 +38,6 @@ bot.on('callback_query',  async (query) => {
       console.log(query.from.id, ',', message.chat.id);
     }
   });
-  
-  cron.schedule('20 11 * * 1', async () => {
-    try {
-      const users = await personal.findAll({
-        where: {
-          active: 'Y',
-          chat_id: { [Op.not]: null }
-        },
-        raw: true
-      });
-  
-      for (const user of users) {
-        try {
-          const report = await reports.findAll({
-            attributes: ['fact', 'date'],
-            order: ['date'],
-            where: {
-              chat_id: user.chat_id,
-              date: {
-                [Op.and]: {
-                  [Op.gte]: format(
-                    new Date(new Date().valueOf() - 1000 * 60 * 60 * 24 * 7),
-                    'yyyy-MM-dd'
-                  ),
-                  [Op.lt]: format(new Date(), 'yyyy-MM-dd')
-                }
-              }
-            },
-            raw: true
-          });
-  
-          let abs = '';
-          report.forEach((rep) => {
-            const dateWithWeekday = new Date(rep.date).toLocaleString('ru-RU', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            });
-            abs += dateWithWeekday + '\n' + ' ' + rep.fact + '\n' + '\n';
-          });
-  
-          await bot.sendMessage(user.chat_id, 'Твой отчёт за неделю:');
-          const mes = await bot.sendMessage(user.chat_id, abs, WeekReport);
-  
-          await bot.editMessageReplyMarkup(
-            {
-              inline_keyboard: [
-                [
-                  {
-                    text: 'Подтвердить',
-                    callback_data: 'Подтвердить'
-                  },
-                  {
-                    text: 'Есть ошибки',
-                    web_app: {
-                      url:
-                        webAppUrl +
-                        'weekly_report.php?message_id=' +
-                        mes.message_id
-                    }
-                  }
-                ]
-              ]
-            },
-            { chat_id: mes.chat.id, message_id: mes.message_id }
-          );
-  
-          await bot.sendMessage(
-            user.chat_id,
-            'Если все в порядке - нажмите "Подтвердить". Если нет - нажмите "Есть ошибки" для отправки уведомления'
-          );
-        } catch (err) {
-            bot.sendMessage(user.chat_id, "Фактов за прошлую неделю не найдено")
-          console.error(err);
-          continue;
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  });
-  
 
 //Факт за неделю командой
 bot.onText(/\/weeks/, async msg => {
@@ -785,36 +702,6 @@ bot.onText(/\/sick/, msg => {
             bot.sendMessage(msg.chat.id, 'Вы больше не можете использовать эту команду');
         }
     }).catch(err=> console.log(err));
-}) 
-
-cron.schedule('15 17 * * 1-5', () =>{
-    not_working.findAll({where:{status: "S", end: format(new Date(), 'yyyy-MM-dd')}, raw: true })
-    .then(user=>{
-        user.forEach(async item =>  {
-                const mes = await bot.sendMessage(item.chat_id, 'какой статус вашего больничного?', {
-                reply_markup:{
-                    inline_keyboard:[
-                        [{text: 'Выбрать дату приема', web_app:{url: webAppUrl+'sick.php'}},
-                        {text: 'Больничный закончился', 
-                        callback_data: 'Больничный закончился'}]
-                    ]
-                }
-            })
-        
-            await bot.editMessageReplyMarkup({               
-                inline_keyboard: [
-                    [{
-                        text: 'Выбрать дату приема',
-                        web_app:{url: webAppUrl+'sick.php?message_id='+mes.message_id}
-                        
-                    },
-                    {text: 'Больничный закончился',
-                    callback_data: 'Больничный закончился'}                
-                    ]
-                ]
-            }, {chat_id: mes.chat.id, message_id: mes.message_id});
-    })
-}).catch(err=>console.log(err));
 })
 
 bot.onText(/\/work_time/, msg => {
