@@ -1,19 +1,18 @@
 const sequelize = require('./db')
 const {DataTypes} = require('sequelize')
 
-
 const users = sequelize.define('users',
     {
         phone:{
-            type: DataTypes.CHAR(12),
+            type: DataTypes.CHAR(11),
             primaryKey: true,
-            autoIncrement: true,
+            autoIncrement: false,
             allowNull: false
         },
         chat_id:{
             type: DataTypes.BIGINT,
         },
-        FIO:{
+        fio:{
             type:DataTypes.CHAR(100),
         },
         team:{
@@ -23,12 +22,12 @@ const users = sequelize.define('users',
         profession:{
             type:DataTypes.CHAR(100),
         },
-// Права доступа
+// Права доступа 1-4
         role:{
             type: DataTypes.SMALLINT,
         },
  // время работы (будет выглядеть так) 10-16 (в качестве примера наш график работы) (пускай пока будет так может потом изменим)
-        workTime:{
+        work_time:{
             type:DataTypes.CHAR(10),
         },
 // работает ли user true/false (не будет работать если взят отпуск, больничный и тд)
@@ -48,7 +47,7 @@ const tasks = sequelize.define('tasks',
             allowNull: false
         },
         phone:{
-            type: DataTypes.CHAR(12),
+            type: DataTypes.CHAR(11),
         },
 // Выполнена ли задача true/false
         status:{
@@ -60,14 +59,14 @@ const tasks = sequelize.define('tasks',
         },
 // Сама задача
         text:{
-            type:DataTypes.CHAR(200),
+            type:DataTypes.TEXT,
         },
 // дата создания задача
-        dateStart: {
+        date_start: {
             type: DataTypes.DATE
         },
 // дата завершения задачи
-        dateEnd:{
+        date_end:{
             type: DataTypes.DATE
         },
     },
@@ -75,7 +74,7 @@ const tasks = sequelize.define('tasks',
 module.exports.tasks = tasks;
 
 // таблица для записи user на больничный, отпуск и тд
-const freeDays = sequelize.define('freeDays',
+const freeDays = sequelize.define('freedays',
     {
         id:{
             type: DataTypes.INTEGER,
@@ -84,7 +83,7 @@ const freeDays = sequelize.define('freeDays',
             allowNull: false
         },
         phone:{
-            type: DataTypes.CHAR(12),
+            type: DataTypes.CHAR(11),
         },
 // Подтвердили ли больничный true/false
         status:{
@@ -96,7 +95,7 @@ const freeDays = sequelize.define('freeDays',
         },
 // Сообщение от user чтоб он мог объяснить причину или чето еще
         message:{
-            type:DataTypes.CHAR(200),
+            type:DataTypes.TEXT,
         },
 // дата начала
         from: {

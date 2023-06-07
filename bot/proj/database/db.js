@@ -1,6 +1,6 @@
 const {Sequelize} = require('sequelize');
 
-module.exports = new Sequelize(
+const sequelize = new Sequelize(
     // 'postgres://grimksi:4QbYXDPrdy9k@ep-wispy-heart-761564.eu-central-1.aws.neon.tech/neondb?ssl=true',
     'postgres://postgres:Zd3NNXXkI3JGoDnoXGCD@containers-us-west-3.railway.app:7251/railway',
     {
@@ -12,6 +12,18 @@ module.exports = new Sequelize(
         }
     }
 )
+module.exports = sequelize;
+
+async function test(){
+    try {
+        await sequelize.authenticate();
+        console.log('Connection to database has been established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+}
+
+test();
 
 
 // localdb
