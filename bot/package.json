@@ -2,10 +2,10 @@
   "name": "iridium_bot",
   "version": "1.0.0",
   "description": "",
-  "main": "proj/index.js",
+  "main": "./proj/index.js",
   "scripts": {
-    "dev": "nodemon proj/index.js",
-    "start": "node proj/index.js"
+    "dev": "nodemon ./proj/index.js",
+    "start": "node ./proj/index.js"
   },
   "keywords": [],
   "author": "",
