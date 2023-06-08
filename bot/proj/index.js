@@ -3,51 +3,23 @@ const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, {polling: true});
 
+module.exports = {
+    bot
+};
+
 const sequelize = require('./database/db');
 const {users,tasks,freeDays} = require('./database/models');
 
 console.log('Бот запущен');
 
-
+const {start} = require('./commands/start');
 
 bot.onText(/\/start/, (msg, match) => {
-    // 'msg' is the received Message from Telegram
-    // 'match' is the result of executing the regexp above on the text content
-    // of the message
-
-    const chatId = msg.chat.id;
-    const resp = match[1]; // the captured "whatever"
-
-    // send back the matched "whatever" to the chat
-    bot.sendMessage(chatId, resp);
+    start(msg, match);
 });
 
-
-
-// Matches "/echo [whatever]"
-bot.onText(/\/echo (.+)/, (msg, match) => {
-    // 'msg' is the received Message from Telegram
-    // 'match' is the result of executing the regexp above on the text content
-    // of the message
-
-    const chatId = msg.chat.id;
-    const resp = match[1]; // the captured "whatever"
-
-    // send back the matched "whatever" to the chat
-    bot.sendMessage(chatId, resp);
+const {info} = require('./commands/user/info');
+bot.onText(/\/info/, (msg, match) => {
+    info(msg, match);
 });
 
-// Listen for any kind of message. There are different kinds of
-// messages.
-bot.on('message', (msg) => {
-    const chatId = msg.chat.id;
-
-    // send a message to the chat acknowledging receipt of their message
-    bot.sendMessage(chatId, 'Received your message');
-});
-
-
-
-module.exports = {
-    bot,
-}

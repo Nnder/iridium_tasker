@@ -14,16 +14,16 @@ const sequelize = new Sequelize(
 )
 module.exports = sequelize;
 
-async function test(){
-    try {
-        await sequelize.authenticate();
-        console.log('Connection to database has been established successfully.');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-    }
-}
-
-test();
+// async function test(){
+//     try {
+//         await sequelize.authenticate();
+//         console.log('Connection to database has been established successfully.');
+//     } catch (error) {
+//         console.error('Unable to connect to the database:', error);
+//     }
+// }
+//
+// test();
 
 
 // localdb
