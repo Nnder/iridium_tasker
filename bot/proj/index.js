@@ -13,7 +13,6 @@ const {users,tasks,freeDays} = require('./database/models');
 console.log('Бот запущен');
 
 const {start} = require('./commands/start');
-
 bot.onText(/\/start/, (msg, match) => {
     start(msg, match);
 });
@@ -22,4 +21,16 @@ const {info} = require('./commands/user/info');
 bot.onText(/\/info/, (msg, match) => {
     info(msg, match);
 });
+
+
+const {addTask} = require('./commands/task/addTask');
+bot.onText(/\/addTask/, (msg, match) => {
+    addTask(msg, match);
+});
+
+const {taskList} = require('./commands/task/taskList');
+bot.onText(/\/taskList/, (msg, match) => {
+    taskList(msg, match);
+});
+
 

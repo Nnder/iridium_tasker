@@ -12,7 +12,13 @@ const sequelize = new Sequelize(
         }
     }
 )
-module.exports = sequelize;
+module.exports = sequelize
+
+
+// (async () => {
+//     await sequelize.sync({ force: true });
+//     // Code here
+// })();
 
 // async function test(){
 //     try {
