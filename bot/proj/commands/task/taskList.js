@@ -12,9 +12,14 @@ async function taskList(msg, match) {
 
     let data = "";
 
-    list.every((el)=>{
-        data+= JSON.stringify(el);
-    })
+    // list.forEach((el)=>{
+    //     data+= JSON.stringify(el);
+    // })
+
+    for (let i = 0; i < list.length; i++) {
+        const {status, team, text, date_start, date_end} = list[i];
+        data+=`№${i} ${text}\n`;
+    }
 
     bot.sendMessage(chat_id, data);
 

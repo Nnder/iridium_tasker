@@ -1,8 +1,6 @@
 const {users, tasks} = require("../../database/models");
 const {bot} = require('../../index');
 
-// сделать дату - timestamp
-
 async function addTask(msg, match){
     const chat_id = msg.chat.id;
     const data = await users.findOne({ where: { chat_id: chat_id } })
