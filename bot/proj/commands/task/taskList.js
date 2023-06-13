@@ -18,7 +18,8 @@ async function taskList(msg, match) {
 
     for (let i = 0; i < list.length; i++) {
         const {status, team, text, date_start, date_end} = list[i];
-        data+=`№${i} ${text}\n`;
+        let complete = status ? "✔" : "✕";
+        data+=`${complete} №${i} ${text} \n`;
     }
 
     bot.sendMessage(chat_id, data);
