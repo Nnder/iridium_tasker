@@ -2,7 +2,7 @@
 
 const {users} = require('../../database/models');
 const sequelize = require("../../database/db");
-const { Op, QueryTypes} = require('sequelize');
+const { Op} = require('sequelize');
 const {bot} = require('../../index');
 
 async function profession(msg, match) {

@@ -10,33 +10,45 @@ async function taskList(msg, match) {
     const {phone, team} = user.dataValues;
     const list = await tasks.findAll({ where: { "phone": phone, "team": team } })
 
-    let data = "";
-
-    // list.forEach((el)=>{
-    //     data+= JSON.stringify(el);
-    // })
-
     for (let i = 0; i < list.length; i++) {
-        const {status, team, text, date_start, date_end} = list[i];
-        let complete = status ? "✔" : "✕";
-        data+=`${complete} №${i} ${text} \n`;
+
+        const {id, status, team, text, date_start, date_end} = list[i];
+        let complete = status ? "✅" : "❌";
+
+        let options = {
+            reply_markup: JSON.stringify({
+                inline_keyboard: [
+                    [
+                        { text: complete, callback_data: JSON.stringify({type: "status", task_id: id}) },
+                        { text: '✏', callback_data: JSON.stringify({type: "edit", task_id: id}) },
+                        { text: '🗑', callback_data: JSON.stringify({type: "delete", task_id: id}) }
+                    ],
+                ]
+            })
+        };
+
+        let data =`№${i+1}\n${text} \n`;
+        await bot.sendMessage(chat_id, data, options);
     }
-
-    bot.sendMessage(chat_id, data);
-
-
-    // bot.sendMessage(chat_id, "Введите новую задачу", {reply_markup: JSON.stringify({ force_reply: true })}).then(msg =>{
-    //     let replyId = bot.onReplyToMessage(chat_id, msg.message_id,(msg)=>{
-    //         const task = tasks.create({
-    //             "phone": phone,
-    //             "team": team,
-    //             "text": msg.text,
-    //             "date_start": +Date.now(),
-    //         });
-    //         bot.removeReplyListener(replyId);
-    //     })
-    // })
 }
+
+bot.on('callback_query', function onCallbackQuery(callbackQuery) {
+
+    const {type, task_id} = JSON.parse(callbackQuery.data);
+    const msg = callbackQuery.message;
+    // console.log(callbackQuery)
+
+
+    switch (type) {
+        case "status": console.log(task_id)
+            break;
+        case "edit":
+            break;
+        case "delete":
+            break;
+
+    }
+});
 
 module.exports = {
     taskList
