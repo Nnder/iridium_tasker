@@ -59,6 +59,11 @@ bot.onText(/\/profession/, (msg, match) => {
     profession(msg, match);
 });
 
+const {workTime} = require('./commands/user/workTime');
+bot.onText(/\/workTime/, (msg, match) => {
+    workTime(msg, match);
+});
+
 
 
 const {addTask} = require('./commands/task/addTask');
