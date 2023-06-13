@@ -1,5 +1,5 @@
 // вывести все задачи за неделю (законченные и не законченные)
-// у незаконченных будет кнопка выполнить
+
 const {users, tasks} = require("../../database/models");
 const {bot} = require("../../index");
 
@@ -35,20 +35,54 @@ async function taskList(msg, match) {
 bot.on('callback_query', function onCallbackQuery(callbackQuery) {
 
     const {type, task_id} = JSON.parse(callbackQuery.data);
-    const msg = callbackQuery.message;
+    const chat_id = callbackQuery.message.chat.id;
     // console.log(callbackQuery)
 
+    try {
+        switch (type) {
+            case "status": changeTaskStatus(chat_id, task_id);
+                break;
+            case "edit": editTask(chat_id, task_id);
+                break;
+            case "delete": deleteTask(chat_id, task_id);
+                break;
 
-    switch (type) {
-        case "status": console.log(task_id)
-            break;
-        case "edit":
-            break;
-        case "delete":
-            break;
-
+        }
+    } catch (e){
+        bot.sendMessage(callbackQuery.message.chat.id, "Ошибка! Что-то пошло не так");
     }
 });
+
+async function changeTaskStatus(chat_id, task_id){
+    const task = await tasks.findOne({ where: { "id": task_id} });
+    await task.update({
+        "status" : !task.status
+    });
+    await bot.sendMessage(chat_id, "Статус задачи изменен");
+}
+
+async function editTask(chat_id, task_id){
+
+    const task = await tasks.findOne({ where: { "id": task_id} });
+    bot.sendMessage(chat_id, task.text, {reply_markup: JSON.stringify({force_reply: true})}). then(msg =>{
+        let replyId = bot.onReplyToMessage(chat_id, msg.message_id, (msg)=>{
+            task.update(
+                {
+                    "text": msg.text
+                }
+            );
+
+            bot.sendMessage(chat_id, `Вы успешно изменили задачу`);
+            bot.removeReplyListener(replyId);
+        });
+    })
+}
+
+async function deleteTask(chat_id, task_id){
+    const task = await tasks.findOne({ where: { "id": task_id} });
+    await task.destroy();
+    await bot.sendMessage(chat_id, "Задача была удалена");
+}
 
 module.exports = {
     taskList
