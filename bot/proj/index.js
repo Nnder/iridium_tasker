@@ -52,7 +52,10 @@ bot.onText(/\/changeTeam/, (msg, match) => {
     changeTeam(msg, match);
 });
 
-
+const {profession} = require('./commands/user/profession');
+bot.onText(/\/profession/, (msg, match) => {
+    profession(msg, match);
+});
 
 
 
