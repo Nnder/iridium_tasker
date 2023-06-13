@@ -47,6 +47,14 @@ bot.onText(/\/info/, (msg, match) => {
     info(msg, match);
 });
 
+const {changeTeam} = require('./commands/user/changeTeam');
+bot.onText(/\/changeTeam/, (msg, match) => {
+    changeTeam(msg, match);
+});
+
+
+
+
 
 const {addTask} = require('./commands/task/addTask');
 bot.onText(/\/addTask/, (msg, match) => {
@@ -57,5 +65,10 @@ const {taskList} = require('./commands/task/taskList');
 bot.onText(/\/taskList/, (msg, match) => {
     taskList(msg, match);
 });
+
+
+
+
+
 
 
