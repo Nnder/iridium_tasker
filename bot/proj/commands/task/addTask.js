@@ -1,5 +1,6 @@
 const {users, tasks} = require("../../database/models");
 const {bot} = require('../../index');
+const {mainKeyboard} = require('../keyboards/main');
 
 async function addTask(msg, match){
     const chat_id = msg.chat.id;
@@ -14,6 +15,7 @@ async function addTask(msg, match){
                 "text": msg.text,
                 "date_start": +Date.now(),
             });
+            bot.sendMessage(chat_id, "Задача успешно добавлена", mainKeyboard);
             bot.removeReplyListener(replyId);
         })
     })

@@ -4,6 +4,7 @@ const {users} = require('../../database/models');
 const sequelize = require("../../database/db");
 const { Op, QueryTypes} = require('sequelize');
 const {bot} = require('../../index');
+const {mainKeyboard} = require('../keyboards/main');
 
 async function workTime(msg, match) {
     const chat_id = msg.chat.id;
@@ -21,7 +22,7 @@ async function workTime(msg, match) {
                 type: Op.SELECT,
             });
 
-            bot.sendMessage(chat_id, `Вы успешно изменили время работы на ${msg.text}`)
+            bot.sendMessage(chat_id, `Вы успешно изменили время работы на ${msg.text}`, mainKeyboard)
             bot.removeReplyListener(replyId);
         });
 
