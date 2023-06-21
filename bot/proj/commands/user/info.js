@@ -20,10 +20,6 @@ async function info(msg, match) {
 
 В зависимотти от рабочего времяни вам будут приходить уведомления
 Пожалуйста установите ваш график правильно
-
-Для смены Команды /changeTeam
-Для смены Профессии /profession
-Для смены рабочено времяни /workTime
     `;
 
     bot.sendMessage(chat_id, userInfo);

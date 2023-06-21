@@ -38,6 +38,15 @@ const users = sequelize.define('users',
 )
 module.exports.users = users;
 
+
+// tasks{
+//   id
+//   chat_id
+//   plan
+//   fact
+//   date
+// }
+
 const tasks = sequelize.define('tasks',
     {
         id:{
@@ -46,27 +55,17 @@ const tasks = sequelize.define('tasks',
             autoIncrement: true,
             allowNull: false
         },
-        phone:{
-            type: DataTypes.CHAR(11),
+        chat_id: {
+            type: DataTypes.BIGINT,
         },
-// Выполнена ли задача true/false
-        status:{
-            type: DataTypes.BOOLEAN,
+        plan:{
+            type:DataTypes.TEXT,
         },
-// задача какой команды (разработчик может менять команды а задачи с ним переходить не должны)
-        team:{
-            type:DataTypes.CHAR(100),
-        },
-// Сама задача
-        text:{
+        fact:{
             type:DataTypes.TEXT,
         },
 // дата создания задача
-        date_start: {
-            type: DataTypes.DATE
-        },
-// дата завершения задачи
-        date_end:{
+        date: {
             type: DataTypes.DATE
         },
     },

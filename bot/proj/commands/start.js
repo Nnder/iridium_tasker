@@ -12,10 +12,9 @@
 
 const {users} = require("../database/models");
 const sequelize = require("../database/db");
-const { Op, QueryTypes} = require('sequelize');
+const { Op} = require('sequelize');
 const {bot} = require('../index');
 const {info} = require('./user/info');
-const {mainKeyboard} = require('./keyboards/main');
 
 async function start(msg, match){
     const chatId = msg.chat.id;
@@ -39,7 +38,7 @@ async function start(msg, match){
 
 
     if (await isIdUnique(chatId)) {
-        bot.sendMessage(chatId, 'Вы уже зарегестрированы', mainKeyboard)
+        bot.sendMessage(chatId, 'Вы уже зарегестрированы')
     } else {
         bot.sendMessage(chatId, 'Вас нет в списке, отправьте номер ', reqPhone)
 
@@ -55,7 +54,7 @@ async function start(msg, match){
 
             isIdUnique(telUser).then(isUnique => {
                 if (isUnique) {
-                    bot.sendMessage(chatId, 'Вы можете начать работать с ботом', mainKeyboard)
+                    bot.sendMessage(chatId, 'Вы можете начать работать с ботом')
                     sequelize.query("UPDATE users SET chat_id = $2 WHERE phone = $1", {
                         bind: [telUser, chatId],
                         model: users,
