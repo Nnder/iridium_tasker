@@ -76,14 +76,12 @@ bot.onText(/\/plan/, async (msg, match) => {
                             })
                         }
 
-
+                        bot.sendMessage(chat_id, "Введите план");
 
                         bot.onText(/\.*/gmi , (msg)=>{
                             plan(msg, match)
                             bot.removeTextListener(/\.*/gmi);
                         })
-
-                        bot.sendMessage(chat_id, "Введите план");
 
                         break;
                     case "Not Work": bot.sendMessage(chat_id, "Не работаю" );
@@ -135,26 +133,19 @@ bot.onText(/\/fact/, async (msg, match) => {
 
             bot.editMessageText("Что сделал зa сегодня?", {
                 chat_id: chat_id,
-                message_id: callbackQuery.message.message_id,
+                message_id: message_id,
                 reply_markup: {inline_keyboard: []},
             });
 
             try {
                 switch (type) {
                     case "Enter fact":
+                        bot.sendMessage(chat_id, "Введите факт")
 
                         bot.onText(/\.*/gmi , (msg)=>{
                             fact(msg, match)
                             bot.removeTextListener(/\.*/gmi);
                         })
-
-
-
-                        // bot.answerCallbackQuery(callbackQuery.id)
-                        // bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
-
-
-                        bot.sendMessage(chat_id, "Введите факт")
 
                         break;
                     case "Not Work":
