@@ -3,20 +3,6 @@ const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, {polling: true});
 
-
-// рабочее время
-// запрос на отпуск, ... (работа с датами)
-
-// для каждого пользователя по его рабочему времяни отправлять уведомления
-// начала рабоч дня с заполнением плана
-// за 30 мин до конца дня с заполнением факта
-
-// -----------
-
-// генерация отчетов
-// генерация веб страницы задач
-// генерация картинки задач
-
 module.exports = {
     bot
 };
@@ -41,10 +27,7 @@ bot.onText(/\/workTime/, (msg, match) => {
     workTime(msg, match);
 });
 
-
-
 const {getTaskForToday} = require('./commands/task/getTask');
-
 
 const {plan} = require('./commands/task/plan');
 bot.onText(/\/plan/, async (msg, match) => {
@@ -52,81 +35,75 @@ bot.onText(/\/plan/, async (msg, match) => {
     const chat_id = msg.chat.id;
     const exist = await getTaskForToday(chat_id)
 
-
     if (exist !== null) {
 
         bot.sendMessage(chat_id, exist?.plan)
 
     } else {
 
-        task = await tasks.create({
-            "chat_id": chat_id,
-            "date": Date.now(),
-        })
-
-
         let options = {
-            reply_markup: JSON.stringify({
+            reply_markup:
+            {
                 inline_keyboard: [
                     [
                         { text: "Ввести план на день", callback_data: JSON.stringify({type: "Enter Plan", chat_id: msg.chat.id}) },
                         { text: 'Не работаю', callback_data: JSON.stringify({type: "Not Work", chat_id: msg.chat.id}) },
                     ],
                 ]
-            })
+            }
         };
-
-        // let options = {
-        //     reply_markup: {
-        //         inline_keyboard: [
-        //             [{
-        //                 text: 'Ввести план на день',
-        //                 callback_data: 'Ввести план на день'
-        //             }, {
-        //                 text: 'Сегодня не работаю',
-        //                 callback_data: 'Сегодня не работаю'
-        //             }]
-        //         ]
-        //     }
-        // }
 
         bot.sendMessage(msg.chat.id, "Доброе утро! Что на сегодня запланировал?", options)
 
-
-
-        bot.on('callback_query', function onCallbackQuery(callbackQuery) {
+        bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
             const {type, task_id} = JSON.parse(callbackQuery.data);
             const chat_id = callbackQuery.message.chat.id;
+            const message_id = callbackQuery.message.message_id;
+
+            bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+            bot.answerCallbackQuery(callbackQuery.id)
+
 
             try {
                 switch (type) {
                     case "Enter Plan":
-                        bot.sendMessage(chat_id, "Введите план");
+
+                        if (await getTaskForToday(chat_id) === null) {
+                            task = await tasks.create({
+                                "chat_id": chat_id,
+                                "date": Date.now(),
+                            })
+                        }
+
+
 
                         bot.onText(/\.*/gmi , (msg)=>{
                             plan(msg, match)
                             bot.removeTextListener(/\.*/gmi);
                         })
 
+                        bot.sendMessage(chat_id, "Введите план");
+
                         break;
-                    case "Not Work": bot.sendMessage(chat_id, "Не работаю");
+                    case "Not Work": bot.sendMessage(chat_id, "Не работаю" );
                         break;
                 }
             } catch (e){
                 bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
             }
+
+
         });
 
 
     }
-
-
 });
 
 
 
 const {fact} = require('./commands/task/fact');
+const {config} = require("dotenv");
 bot.onText(/\/fact/, async (msg, match) => {
 
     const chat_id = msg.chat.id;
@@ -139,9 +116,7 @@ bot.onText(/\/fact/, async (msg, match) => {
 
         let options = {
             reply_markup: JSON.stringify({
-                remove_keyboard: true,
-                hide_keyboard: true,
-                one_time_keyboard: true,
+
                 inline_keyboard: [
                     [
                         { text: "Ввести факт", callback_data: JSON.stringify({type: "Enter fact", chat_id: msg.chat.id}) },
@@ -152,21 +127,34 @@ bot.onText(/\/fact/, async (msg, match) => {
 
         bot.sendMessage(msg.chat.id, "Что сделал за сегодня?", options)
 
-        bot.on('callback_query', function onCallbackQuery(callbackQuery) {
+        bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
             const {type, task_id} = JSON.parse(callbackQuery.data);
             const chat_id = callbackQuery.message.chat.id;
-            // console.log(callbackQuery)
+            const message_id = callbackQuery.message.message_id;
+
+            bot.editMessageText("Что сделал зa сегодня?", {
+                chat_id: chat_id,
+                message_id: callbackQuery.message.message_id,
+                reply_markup: {inline_keyboard: []},
+            });
 
             try {
                 switch (type) {
                     case "Enter fact":
-                        bot.sendMessage(chat_id, "Введите факт")
 
                         bot.onText(/\.*/gmi , (msg)=>{
                             fact(msg, match)
                             bot.removeTextListener(/\.*/gmi);
                         })
+
+
+
+                        // bot.answerCallbackQuery(callbackQuery.id)
+                        // bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+
+
+                        bot.sendMessage(chat_id, "Введите факт")
 
                         break;
                     case "Not Work":
@@ -176,6 +164,8 @@ bot.onText(/\/fact/, async (msg, match) => {
             } catch (e){
                 bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
             }
+
+
         });
 
     }
