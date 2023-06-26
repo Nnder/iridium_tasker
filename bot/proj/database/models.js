@@ -68,6 +68,9 @@ const tasks = sequelize.define('tasks',
         date: {
             type: DataTypes.DATE
         },
+        hours: {
+            type: DataTypes.INTEGER
+        }
     },
 )
 module.exports.tasks = tasks;

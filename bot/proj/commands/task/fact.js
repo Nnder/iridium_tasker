@@ -1,12 +1,13 @@
-const {tasks} = require("../../database/models");
 const {bot} = require("../../index");
-const { Op } = require("sequelize");
-const {getTaskForToday} = require("./getTask");
+const {getTaskForToday, setUTC} = require("./getTask");
+const {addHours} = require("./addHours");
+
+
 
 
 async function fact(msg, match){
     const chat_id = msg.chat.id;
-    const task = await getTaskForToday(chat_id);
+    const task = await getTaskForToday(chat_id, setUTC(new Date()));
 
     if (task !== null && task?.plan !== null) {
 
@@ -15,6 +16,8 @@ async function fact(msg, match){
         })
 
         bot.sendMessage(chat_id, "факт успешно записан");
+
+        addHours(msg, await getTaskForToday(chat_id, setUTC(new Date())))
     } else {
         bot.sendMessage(chat_id, "Факт не записан");
     }
