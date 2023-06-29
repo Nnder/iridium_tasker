@@ -1,2 +1,4 @@
 /bot/node_modules/
-/bot/node_modules
+/bot/proj/proj.code-workspace
+.idea
+bot/proj/index2.js
