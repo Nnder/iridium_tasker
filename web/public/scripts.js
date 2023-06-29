@@ -1,8 +1,8 @@
 //.........Загрузка страницы............
 //Вывод таблицы
 $(document).ready(function(){
-    $('#table').load('table.php');    
-  });
+    $('#table').load('table.php');  
+});
 
 //...........Модальное окно (Редактирование сотрудника)..........
 function but_emp(tel) {
@@ -58,6 +58,12 @@ $(document).on('click', '#button_add', function () {
   $('#modal_add').modal('show');
 })
 
+
+//закрытие модального окна (Добавление сотрудника)
+$(document).on('click', '#btn-add-close', function () {
+  $('#modal_add').modal('hide');
+})
+
 //............Кнопки форм............
 $(document).on('submit', '.formsql', function (e) {
         var form_data = $(this).serialize();
@@ -67,7 +73,8 @@ $(document).on('submit', '.formsql', function (e) {
             url: urlphp,
             data: {},
             success: function (data) {
-              eval(data);
+              table_update(); 
+              $('#Modal').modal('hide');              
             }
         });
     });
@@ -124,16 +131,17 @@ $(document).on('click', '.sort', function () {
 //Отправка номера и кода
 function auth_num() {
   var form_data = $('#auth').serialize();
-  var urlphp = "ajax.php?"+form_data;
+  var urlphp = "ajax.php?" + form_data;
   $.ajax({
     type: "POST",
     url: urlphp,
     data: {},
     success: function (data) {
-      eval(data);
+      document.getElementById('auth').innerHTML = data;
     }
   });
 };
+
 //Возврат к вводу номера
 function auth_back() {
   $.ajax({
@@ -326,7 +334,7 @@ function teams_update() {
     url: "ajax.php",
     data: {teams: 'da',},
     success: function (data) {
-      eval(data);
+      document.getElementById('teams').innerHTML = data; 
     }
   });;
 }

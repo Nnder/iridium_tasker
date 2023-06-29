@@ -11,7 +11,7 @@
     }
 
     if(!empty($_SESSION['auth'])) {
-        $query = "SELECT number_phone, full_name, post, array_to_string(team, ', ', '') FROM personals WHERE (number_phone = '".$_SESSION['auth']."' OR access_level<=".access($connection).")";
+        $query = "SELECT phone, fio, profession, team FROM users WHERE (phone = '".$_SESSION['auth']."' OR role <=".access($connection).")";
         if (isset($_GET['filter-post']) && $_GET['filter-post']!='Все'){
             $query .= " AND post = '".$_GET['filter-post']."'";
         }
@@ -19,10 +19,10 @@
             $query .= " AND '".$_GET['filter-team']."' = any(team)";
         }
         if (isset($_GET['active-check']) && $_GET['active-check']=='Y'){
-            $query .= " AND active != ''";
+            $query .= " AND status != ''";
         }
         else{
-            $query .= " AND active != 'N'";
+            $query .= " AND status != false";
         }
         if (isset($_GET['search']) && $_GET['search']!=''){                    
             $search=trim(pg_escape_string($_GET['search'])); 
@@ -30,23 +30,23 @@
             if (mb_substr($search,0,1)=='+'){
                 $search=substr($search,1,mb_strlen($search));
             }
-            $query .= " AND number_phone iLIKE '%".$search."%' OR full_name iLIKE '%".$search."%' OR post iLIKE '%".$search."%' OR array_to_string(team, ' ') iLIKE '%".$search."%'"; 
+            $query .= " AND phone iLIKE '%".$search."%' OR fio iLIKE '%".$search."%' OR profession iLIKE '%".$search."%'"; 
             
             $search = mb_strtolower($search, 'UTF-8');
             if (mb_substr($search,0,1)=='+'){
                 $search=substr($search,1,mb_strlen($search));
             }
-            $query .= " AND number_phone iLIKE '%".$search."%' OR full_name iLIKE '%".$search."%' OR post iLIKE '%".$search."%' OR array_to_string(team, ' ') iLIKE '%".$search."%'"; 
+            $query .= " AND phone iLIKE '%".$search."%' OR fio iLIKE '%".$search."%' OR profession iLIKE '%".$search."%'"; 
         }
         if (isset($_POST['sort'])){
             $query .= " ORDER BY ".$_POST['sort']." ".$_POST['type'];
         }
         else {
-            $query .= " ORDER BY full_name ASC";
+            $query .= " ORDER BY fio ASC";
         }
         $rs = pg_query($connection, $query) or die("wait what\n");
         while ($row = pg_fetch_array($rs)) {
-            if ($row[7]=='N'){
+            if ($row[7] == false){
                 $NonActive='NonActive';
             }
             else {

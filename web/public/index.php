@@ -57,18 +57,9 @@ include 'php.php';
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">       
-      <button type="button" id="button_add" class="btn btn-success" style="margin-right: 10px;">Добавить сотрудника</button> 
-        <?php
-        if (access($connection) == 4) {
-        ?>        
+      <button type="button" id="button_add" class="btn btn-success" style="margin-right: 10px;">Добавить сотрудника</button>      
         <button id='teams_but' type="button" class="btn btn-success" style="margin-right: 10px;">Команды</button>
         <button id='report_card' type="button" class="btn btn-success" style="margin-right: 10px;">Табель</button>
-        <?php
-        }
-        else {?>
-
-        <?}
-        ?>
         <form method="POST"><button type="submit" class="btn btn-secondary" style="margin-right: 10px;" name="button-exit">Выход</button></form>
       </div>
     </div>
@@ -98,19 +89,19 @@ include 'php.php';
           <thead>
             <form class="form-filters">
             <tr>
-              <input type="hidden" id="sort-check" name="sort" value="full_name" sort="ASC">
+              <input type="hidden" id="sort-check" name="sort" value="fio" sort="ASC">
               <th scope="col">
-                <div class="sort" value="number_phone">Номер телефона</div>
+                <div class="sort" value="phone">Номер телефона</div>
               </th>
               <th scope="col">
-                <div class="sort" value="full_name">ФИО ↑</div>
+                <div class="sort" value="fio">ФИО ↑</div>
               </th>
               <th scope="col" class='post-report'>
-                <div class="sort" value="post">Должность</div>
+                <div class="sort" value="profession">Должность</div>
                 <select class="form-select filter-select filters" name="filter-post" id="filter-post">
                   <option value="Все">Все</option>
                   <?php
-                    $sql = "SELECT post FROM personals WHERE post != '' AND access_level<".access($connection)." AND active != 'N' OR number_phone = '".$_SESSION['auth']."' GROUP BY post";
+                    $sql = "SELECT profession FROM users WHERE profession != '' AND role<".access($connection)." AND status != 'false' OR phone = '".$_SESSION['auth']."' GROUP BY profession";
                     $res = pg_query($connection, $sql) or die("wait what\n");
                     while ($combobox = pg_fetch_array($res)) {
                     ?>
@@ -125,7 +116,7 @@ include 'php.php';
                 <select class="form-select filter-select filters" name="filter-team" id="filter-team">
                   <option value="Все">Все</option>
                   <?php
-                    $sql = "SELECT * FROM team";
+                    $sql = "SELECT DISTINCT team FROM users";
                     $res = pg_query($connection, $sql) or die("wait what\n");
                     while ($combobox = pg_fetch_array($res)) {
                     ?>
@@ -140,6 +131,7 @@ include 'php.php';
             </form>
           </thead>
           <tbody id ="table">
+
           </tbody>
         </table>
       </div>
@@ -171,7 +163,7 @@ include 'php.php';
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5">Добавление сотрудника</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close-add"></button>
       </div>
       <div class="modal-body">
         <form onsubmit="return false;" class="row gy-2 gx-3 align-items-center text-center formsql" name="button-add">
@@ -185,68 +177,44 @@ include 'php.php';
             <label class='number-error' style="color:red"></label>
           </div>
           <div class="col-auto mx-auto">
-            <label for="date_birth">Дата рождения</label>
-            <div class="input-group date datepicker" id="datepicker">
-              <input readonly type="text" class="form-control" id="add_date_birth" name="add_date_birth" data-date-format='yy-mm-dd'>
-              <span class="input-group-append">
-                <span class="input-group-text bg-white" style="height:100%">
-                  <i class="fa fa-calendar"></i>
-                </span>
-              </span>
-            </div>
-            <label class='' style="color:red"></label>
-          </div>
-          <div class="col-auto mx-auto">
             <label for="full_name">ФИО</label>
-            <input type="text" class="form-control" id="add_full_name" name="add_full_name">
+            <input type="text" class="form-control" id="add_full_name" name="add_full_name" maxlength="100">
             <label class='' style="color:red"></label>
           </div>
           <div class="col-auto mx-auto">
             <label for="add_post">Должность</label>
-            <input type="text" class="form-control" name="add_post" id="add_post">
+            <input type="text" class="form-control" name="add_post" id="add_post" maxlength="100">
             <label class='' style="color:red"></label>
           </div>
           <div class="col-auto mx-auto">
             <label for="add_team">Команда</label>
-            <select class="form-select" name="add_team" id="add_team">
+            <input type="text" name="add_team" id="add_team" list="choose_team" class="form-select" maxlength="100">
+            <datalist id='choose_team'>          
             <?php
-              $sql_com = "SELECT * FROM team";
-              $rescom = pg_query($connection, $sql_com) or die("wait what\n");
-              while ($combobox = pg_fetch_array($rescom)) {
-                echo "<option value='".$combobox[0]."'>".$combobox[0]."</option>";
-              }
-            ?>
-            <option value='Без команды'>Без команды</option>
-            </select>
+               $sql_com = "SELECT DISTINCT team FROM users";
+               $rescom = pg_query($connection, $sql_com) or die("wait what\n");
+               while ($combobox = pg_fetch_array($rescom)) {
+                 echo "<option value='".trim($combobox[0])."'>";
+               }
+            ?>            
+            <option value='Без команды'>
+            </datalist>
             <label class='' style="color:red"></label>
           </div>
           <div class="col-auto mx-auto">
             <label for="access_level">Уровень доступа</label>
             <select class="form-select" name="add_access_level" id="add_access_level">
-            <?php
-              $sql_com = "SELECT * FROM root ";
-              $rescom = pg_query($connection, $sql_com) or die("wait what\n");
-              while ($combobox = pg_fetch_array($rescom)) {
-                if ($combobox[0]<access($connection)){
-                  echo "<option value=".$combobox[0].">".$combobox[1]."</option>";
-                }
-              }
-            ?>
+              <option value="1" name="access_level">Admin</option>
+              <option value="2" name="access_level">SuperAdmin</option>
             </select>
             <label class='' style="color:red" ></label>
           </div>
           <div class="mx-auto" style="margin-top:0px">
-            <button type="submit" class="btn btn-primary">Добавить</button>
+            <button type="submit" class="btn btn-primary" id="btn-add-close">Добавить</button>
           </div>
         </form>
       </div>
     </div>
-  </div>
-</div>
-<!-- Активность посещений (окно)-->
-<div class="modal activ">
-  <div class="">
-    
   </div>
 </div>
 <!--.............Список действий..........-->
@@ -259,9 +227,6 @@ include 'php.php';
   </div>
 </div>
 <!--...........Команды............-->
-<?php
-if (access($connection) == 4) {
-?>
 <div class="modal fade" id="modal_teams" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width:95%; width:500px;">
     <div class="modal-content">
@@ -269,7 +234,7 @@ if (access($connection) == 4) {
         <h1 class="modal-title fs-5">Команды</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" style = 'padding: 0;'>
+      <div class="modal-body" >
         <form onsubmit="return false;" class="row gy-2 gx-3 " id = 'teams' style = 'width: 100%; margin: 0'>
         </form>
       </div>
@@ -286,12 +251,9 @@ if (access($connection) == 4) {
   </div>
 </div>
 <?php
-    }
-    else {
-      
-    }
   }
 ?>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js?v=<?= time(); ?>"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js?v=<?= time(); ?>" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js?v=<?= time(); ?>"></script>

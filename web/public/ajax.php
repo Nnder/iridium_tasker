@@ -6,20 +6,13 @@ session_start();
 
 //...........Добавление сотрудника...............
 if (isset($_GET['button-form']) && $_GET['button-form'] == 'button-add' && !empty($_SESSION['auth'])){
-  $add_date_birth = $_GET['add_date_birth'];
   $add_number_phone = '7'.pg_escape_string($_GET['add_number_phone']);
   $add_full_name = pg_escape_string($_GET['add_full_name']);
   $add_post = pg_escape_string($_GET['add_post']);
-  if ($_GET['add_date_birth']==''){
-    $add_date_birth = 'NULL';
-  }
-  else {
-    $add_date_birth = "'$add_date_birth'";
-  }
-  $sql = "SELECT number_phone FROM personals WHERE number_phone='$add_number_phone'";
+  $sql = "SELECT phone FROM users WHERE phone='$add_number_phone'";
   $res = pg_query($connection, $sql);
   $row = pg_fetch_array($res);
-  if ($row['number_phone'] != ''){
+  if ($row['phone'] != ''){
     echo "$('.number-error').text('Номер уже зарегистрирован');";
   }
   elseif (mb_strlen($add_number_phone)!=11 || !(is_numeric($add_number_phone)))
@@ -27,7 +20,7 @@ if (isset($_GET['button-form']) && $_GET['button-form'] == 'button-add' && !empt
     echo "$('.number-error').text('Неверный формат номера');";
   }
   else{
-    $sql ="INSERT INTO personals (number_phone, date_birth, full_name, post, team, access_level, active) VALUES ('".$add_number_phone."', ".$add_date_birth.", '".$add_full_name."', '".$add_post."', '{".$_GET['add_team']."}', '".$_GET['add_access_level']."', 'Y')";
+    $sql ="INSERT INTO users (phone, fio, profession, team, role, status) VALUES ('".$add_number_phone."', '".$add_full_name."', '".$add_post."', '".$_GET['add_team']."', '".$_GET['add_access_level']."', true)";
     pg_query($connection, $sql);
     echo "table_update(); $('#modal_add').modal('hide');";
   }
@@ -35,27 +28,22 @@ if (isset($_GET['button-form']) && $_GET['button-form'] == 'button-add' && !empt
 
 //.............Редактирование сотрудника.............
 if (isset($_GET['button-form']) && $_GET['button-form'] == 'button-save' && !empty($_SESSION['auth'])){
-  $date_birth = $_GET['date_birth'];
+  echo "aaa";
   $full_name = pg_escape_string($_GET['full_name']);
   $post = pg_escape_string($_GET['post']);
   $number_phone = mb_substr($_GET['number_phone'],1,11);
   $team = $_GET['team'];
-  if (isset($_GET['active']) && $_GET['active']=='Y'){
-    $active='Y';
+  $chatid = pg_escape_string($_GET['chat_id']);
+  if (isset($_GET['active']) && $_GET['active'] == "true"){
+    $active = true;
   }
   else{
-    $active='N';
+    $active = false;
   }
-  if ($_GET['date_birth']==''){
-    $date_birth = 'NULL';
-  }
-  else {
-    $date_birth = "'$date_birth'";
-  }
-  $sql ="UPDATE personals SET date_birth=".$date_birth.", full_name='".$full_name."', post='".$post."', team='{".$team."}', access_level='".$_GET['access_level']."', active='".$active."' WHERE number_phone = '".$number_phone."'";
+  $sql ="UPDATE users SET fio='".$full_name."', profession='".$post."', team='".$team."', role='".$_GET['access_level']."', status='".$active."', chat_id='".$chatid."' WHERE phone = '".$number_phone."'";
   pg_query($connection, $sql);
-  echo "table_update(); $('#Modal').modal('hide');";
 }
+
 
 //..............Авторизация....................
 //Ввод номера
@@ -63,49 +51,38 @@ if (isset($_GET['InputTel']))
 {
   $tel='7'.(pg_escape_string($_GET['InputTel']));
   $employee=getdata($connection, $tel);
-  if ($employee[0] != '' && $tel == $employee[0]){
-      if ($employee[5]!=1 && $employee[8] == 'Y'){
-        if ($employee[7] != NULL){
+  if ($employee[0] != '' && $tel == $employee[0]) {
           $code = rand(100000,999999);
-          $sql ="UPDATE personals SET password = '".$code."' WHERE number_phone = '".$tel."'";
-          pg_query($connection, $sql);
-          file_get_contents("https://api.telegram.org/bot".$token."/sendMessage?chat_id=".$employee[7]."&text=".$code);
-          echo "document.getElementById('auth').innerHTML = \"<div class='mb-3'>\
-          <input type='hidden' name='InputCode_tel' value='".$tel."'>\
-          <label for='InputCode' class='form-label'>Введите код</label>\
-          <input type='code' class='form-control mx-auto auth_enter' style='width:250px;' id='InputCode' name='InputCode'>\
-          <label style='color:lightgrey; font-size:80%'>Код был отправлен на номер +".$tel."</label><br/>\
-          <button class='button-back' type='button' style='' onclick='auth_back()'><a>Ошиблись номером?</br>(вернуться)</a></button>\
-          </div><button type='button' class='btn btn-primary auth_button' name='button-auth' onclick='auth_num()'>Подтвердить</button>\
-          <p class='text-center' id='auth-error' style='color:red; margin-top:10px'></p>\"";
-        }
-        else{
-          echo("document.getElementById('auth-error').innerHTML = 'Вы не подтвердили номер в боте!'");
-        }
-      }
-      else {
-        echo("document.getElementById('auth-error').innerHTML = 'У вас недостаточно прав!'");
-      }
+          $_SESSION['code'] = $code;
+          file_get_contents("https://api.telegram.org/bot".$token."/sendMessage?chat_id=".$employee[1]."&text=".$code); 
+          echo "<div class='mb-3'>
+          <input type='hidden' name='InputCode_tel' value='".$tel."'>
+          <label for='InputCode' class='form-label'>Введите код</label>
+          <input type='code' class='form-control mx-auto auth_enter' style='width:250px;' id='InputCode' name='InputCode'>
+          <label style='color:lightgrey; font-size:80%'>Код был отправлен на номер +".$tel."</label><br/>
+          <button class='button-back' type='button' style='' onclick='auth_back()'><a>Ошиблись номером?</br>(вернуться)</a></button>
+          </div><button type='button' class='btn btn-primary auth_button' name='button-auth' onclick='auth_num()'>Подтвердить</button>
+          <p class='text-center' id='auth-error' style='color:red; margin-top:10px'></p>";
   }
   else {
-    echo("document.getElementById('auth-error').innerHTML = 'Номер не зарегистрирован в системе!'");
+    echo('Номер не зарегистрирован в системе!');
   }
 }
+
 //Проверка кода
 if (isset($_GET['InputCode']))
 {
-  $code = $_GET['InputCode'];
+  $code1 = $_GET['InputCode'];
   $tel = $_GET['InputCode_tel'];
+
   $employee=getdata($connection, $tel);
-  if ($code == $employee[6]){
+  if ($_SESSION['code'] == $code1) {
     session_start();
-    $_SESSION['auth']=$employee[0];
-    $sql ="UPDATE personals SET password = '' WHERE number_phone = '".$tel."'";
-    pg_query($connection, $sql);
-    echo("location.reload()");
+    $_SESSION['auth'] = $employee[0];
+    echo("<meta http-equiv='refresh' content='1'>");
   }
   else{
-    echo("document.getElementById('auth-error').innerHTML = \"Неверный код!\"");
+    echo("Неверный код!");
   }
 }
 //Возврат к вводу номера
@@ -199,8 +176,8 @@ if (isset($_POST['first']) && isset($_POST['last'])){
 }
 
 //.......Команды..............
-if (isset($_POST['teams']) && !empty($_SESSION['auth']) && access($connection) == 4) {
-  $sql = "SELECT * FROM team";
+if (isset($_POST['teams']) && !empty($_SESSION['auth']) && access($connection) == 2) {
+  $sql = "SELECT team FROM users";
   $res = pg_query($connection, $sql) or die("wait what\n");
   while ($combobox = pg_fetch_array($res)) {
     echo  "document.getElementById('teams').innerHTML += `
@@ -233,7 +210,7 @@ if (isset($_POST['teams']) && !empty($_SESSION['auth']) && access($connection) =
 
 
 //............Изменить название команды.............
-if (isset($_POST['team_rename']) && !empty($_SESSION['auth']) && access($connection) == 4) {
+if (isset($_POST['team_rename']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $title = pg_escape_string($_POST['team_title']);
   $rename = trim(pg_escape_string($_POST['team_rename']));
   $sql = "SELECT team FROM team WHERE team = '".$rename."'";
@@ -253,7 +230,7 @@ if (isset($_POST['team_rename']) && !empty($_SESSION['auth']) && access($connect
 }
 
 //............Добавить команду.............
-if (isset($_POST['team_add']) && !empty($_SESSION['auth']) && access($connection) == 4) {
+if (isset($_POST['team_add']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $title = trim(pg_escape_string($_POST['team_add']));
   $sql = "SELECT team FROM team WHERE team = '".$title."'";
   $res = pg_query($connection, $sql) or die("wait what\n");
@@ -270,7 +247,7 @@ if (isset($_POST['team_add']) && !empty($_SESSION['auth']) && access($connection
 }
 
 //............Удалить команду.............
-if (isset($_POST['team_delete']) && !empty($_SESSION['auth']) && access($connection) == 4) {
+if (isset($_POST['team_delete']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $title = pg_escape_string($_POST['team_delete']);
   $sql = "SELECT count(number_phone) FROM personals WHERE '".$title."' = any(team) AND active = 'Y' AND 2 > array_length(team, 1)";
   $res = pg_query($connection, $sql) or die("wait what\n");
@@ -300,7 +277,7 @@ if (isset($_POST['team_delete']) && !empty($_SESSION['auth']) && access($connect
 }
 
 //............Перенести в другие команды(final).............
-if (isset($_POST['team_change']) && !empty($_SESSION['auth']) && access($connection) == 4) {
+if (isset($_POST['team_change']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $travel_arr = $_POST['team_change'];
   $title = $_POST['title'];
   $sql = "DELETE FROM team WHERE team = '".$title."';";
@@ -321,7 +298,7 @@ if (isset($_POST['team_change']) && !empty($_SESSION['auth']) && access($connect
 }
 
 //............Перенести в другие команды..............
-if (isset($_POST['team_traveling']) && !empty($_SESSION['auth']) && access($connection) == 4) {
+if (isset($_POST['team_traveling']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $title = pg_escape_string($_POST['team_traveling']);
   $sql = "SELECT team FROM team WHERE team != '".$title."'";
   $res = pg_query($connection, $sql) or die("wait what\n");
@@ -402,7 +379,7 @@ if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED
 }
 
 //.......Команды (редактирование)..............
-if (isset($_POST['edit_team']) && !empty($_SESSION['auth']) && (access($connection) == 3 || access($connection) == 4)) {
+if (isset($_POST['edit_team']) && !empty($_SESSION['auth']) && (access($connection) == 1 || access($connection) == 2)) {
   $checked_arr=explode(', ', $_POST['edit_team']);
   $sql = "SELECT * FROM team";
   $res = pg_query($connection, $sql) or die("wait what\n");

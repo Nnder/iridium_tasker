@@ -1,3 +1,3 @@
 <?php
-$connection = pg_connect("postgres://grimksi:4QbYXDPrdy9k@ep-wispy-heart-761564.eu-central-1.aws.neon.tech/neondb?options=project%3Dep-wispy-heart-761564&ssl=true") or die("Что-то пошло не так :(\n");
+$connection = pg_connect("postgres://postgres:Zd3NNXXkI3JGoDnoXGCD@containers-us-west-3.railway.app:7251/railway") or die("Что-то пошло не так :(\n"); 
 ?>

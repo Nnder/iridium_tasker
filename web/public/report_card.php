@@ -4,7 +4,7 @@ include 'php.php';
 require_once 'PHPExcel.php';
 session_start();
 
-if (!empty($_SESSION['auth']) && access($connection) == 4 && isset($_GET['date'])) {
+if (!empty($_SESSION['auth']) && isset($_GET['date'])) {
     $start = $_GET['date'];
     $end = date("Y-m-t", strtotime($start));
     $objExcel = new PHPExcel();
