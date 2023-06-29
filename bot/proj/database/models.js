@@ -84,8 +84,8 @@ const freeDays = sequelize.define('freedays',
             autoIncrement: true,
             allowNull: false
         },
-        phone:{
-            type: DataTypes.CHAR(11),
+        chat_id:{
+            type: DataTypes.BIGINT,
         },
 // Подтвердили ли больничный true/false
         status:{

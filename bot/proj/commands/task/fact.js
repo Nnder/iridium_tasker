@@ -5,9 +5,9 @@ const {addHours} = require("./addHours");
 
 
 
-async function fact(msg, match){
+async function fact(msg, match, date = setUTC(new Date())){
     const chat_id = msg.chat.id;
-    const task = await getTaskForToday(chat_id, setUTC(new Date()));
+    const task = await getTaskForToday(chat_id, date);
 
     if (task !== null && task?.plan !== null) {
 
@@ -17,7 +17,7 @@ async function fact(msg, match){
 
         bot.sendMessage(chat_id, "факт успешно записан");
 
-        addHours(msg, await getTaskForToday(chat_id, setUTC(new Date())))
+        addHours(msg, await getTaskForToday(chat_id, date))
     } else {
         bot.sendMessage(chat_id, "Факт не записан");
     }
