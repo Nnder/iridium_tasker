@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Telegram Web App</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="utf-8">
+
+    <style>
+        body{
+            color: var(--tg-theme-text-color);
+            background: var(--tg-theme-bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .hint{
+            color: var(--tg-theme-hint-color);
+        }
+
+        .link{
+            color: var(--tg-theme-link-color);
+        }
+
+        .button{
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            font-size: 18px;
+        }
+
+        .button:not(:last-child){
+            margin-bottom: 20px
+        }
+
+        input {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <div>
+        <div>Напишите причину</div>
+        <input type="text" list="cause-list" class="cause">
+
+        <datalist id="cause-list">
+            <option value="Взять день">
+            <option value="Поход к врачу">
+            <option value="Больничный">
+        </datalist>
+    </div>
+
+    <div>
+        <div>Выберите промежуток</div>
+        <div>
+            <input type="date" class="date-start">
+            <input type="date" class="date-end">
+        </div>
+    </div>
+
+    <div>
+        <div>Сообщение</div>
+        <textarea cols="30" rows="10" placeholder="Опишите что случилось" class="message"></textarea>
+    </div>
+</div>
+<script>
+
+    function notify(){
+        document.querySelector(".text").innerText = `${tg.initDataUnsafe.user.first_name}
+        ${tg.initDataUnsafe.user.last_name}
+        ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code}) ${tg.initDataUnsafe.user.id}`;
+    }
+
+    let tg = window.Telegram.WebApp; //получаем объект webapp телеграма
+    tg.expand(); //расширяем на все окно
+    tg.MainButton.text = "Отправить"; //изменяем текст кнопки
+    tg.MainButton.textColor = "#E0FFFF"; //изменяем цвет текста кнопки
+    tg.MainButton.color = "#143F6B"; //изменяем цвет бэкграунда кнопки
+    tg.MainButton.show();
+
+
+    Telegram.WebApp.onEvent('mainButtonClicked', async function(){
+
+        tg.MainButton.disable()
+
+        const from = document.querySelector('.date-start').value;
+        const to = document.querySelector('.date-end').value;
+        const cause = document.querySelector('.cause').value;
+        const message = document.querySelector('.message').value;
+
+        let user_id = new URL(window.location.href).searchParams.get("user");
+
+
+
+        if ( !from || !to || !cause || !message){
+            alert(`Заполните все поля`);
+        } else {
+
+            let data = {
+                cause,
+                message,
+                from,
+                to,
+                user_id,
+            }
+
+            const url = 'https://f6ce-46-48-25-143.ngrok-free.app/web-data';
+
+            let response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(data)
+            })
+
+            if (response.status === 200) {
+                tg.close();
+            }
+
+        }
+    });
+
+</script>
+</body>
+</html>

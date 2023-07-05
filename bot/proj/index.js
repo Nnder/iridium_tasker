@@ -1,8 +1,8 @@
 require('dotenv').config({ path: '.env' });
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.BOT_TOKEN;
-const bot = new TelegramBot(token, {polling: true});
-const webAppUrl = 'https://ya.ru';
+const bot = new TelegramBot(token, {polling: {interval: 300, autoStart: true}});
+const webAppUrl = process.env.WEB_APP_URL;
 
 module.exports = {
     bot,
@@ -45,6 +45,7 @@ bot.onText(/\/week/, (msg, match) => {
     }
 });
 
+
 const {getTaskForToday, setUTC} = require('./commands/task/getTask');
 
 const {plan} = require('./commands/task/plan');
@@ -54,7 +55,7 @@ bot.onText(/\/plan/, async (msg, match) => {
     const chat_id = msg.chat.id;
     const exist = await getTaskForToday(chat_id, setUTC(new Date()))
 
-    if (exist !== null) {
+    if (exist !== null && exist?.plan) {
 
         bot.sendMessage(chat_id, "Ваш план \n"+exist?.plan);
         debt(msg, match);
@@ -82,10 +83,9 @@ bot.onText(/\/plan/, async (msg, match) => {
                 "chat_id": chat_id,
                 "date": currentDate,
             })
-
-
-
         }
+
+
 
         const timer = setTimeout(()=>{
             const {message_id} = messageWithKeyboard;

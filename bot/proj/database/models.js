@@ -28,7 +28,7 @@ const users = sequelize.define('users',
         },
  // время работы (будет выглядеть так) 10-16 (в качестве примера наш график работы) (пускай пока будет так может потом изменим)
         work_time:{
-            type:DataTypes.CHAR(10),
+            type:DataTypes.CHAR(20),
         },
 // работает ли user true/false (не будет работать если взят отпуск, больничный и тд)
         status:{
@@ -69,7 +69,7 @@ const tasks = sequelize.define('tasks',
             type: DataTypes.DATE
         },
         hours: {
-            type: DataTypes.INTEGER
+            type: DataTypes.TIME
         }
     },
 )
