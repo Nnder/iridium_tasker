@@ -1,10 +1,12 @@
 <!DOCTYPE html>
+<!--suppress ALL -->
 <html>
 <head>
     <title>Telegram Web App</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="utf-8">
+
 
     <style>
         body{
@@ -37,6 +39,7 @@
 
         input {
             font-size: 20px;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -44,40 +47,130 @@
 
 <div>
     <div>
-        <div>Напишите причину</div>
-        <input type="text" list="cause-list" class="cause">
+        <div>Выберите время работы</div>
 
-        <datalist id="cause-list">
-            <option value="Взять день">
-            <option value="Поход к врачу">
-            <option value="Больничный">
-        </datalist>
-    </div>
+        <div style="display: flex; flex-direction: column;">
 
-    <div>
-        <div>Выберите промежуток</div>
-        <div>
-            <input type="date" class="date-start">
-            <input type="date" class="date-end">
+            <div>
+
+                <label>
+                    <select class="from" onchange="fromChange()">
+                        <option value="Время начала дня">Время начала дня</option>
+                        <option value="07:00">07:00</option>
+                        <option value="07:30">07:30</option>
+                        <option value="08:00">08:00</option>
+                        <option value="08:30">08:30</option>
+                        <option value="09:00">09:00</option>
+                        <option value="09:30">09:30</option>
+                        <option value="10:00">10:00</option>
+                        <option value="10:30">10:30</option>
+                        <option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option>
+                        <option value="14:30">14:30</option>
+                        <option value="15:00">15:00</option>
+                        <option value="15:30">15:30</option>
+                        <option value="16:00">16:00</option>
+                        <option value="16:30">16:30</option>
+                        <option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option>
+                        <option value="18:00">18:00</option>
+                        <option value="18:30">18:30</option>
+                        <option value="19:00">19:00</option>
+                        <option value="19:30">19:30</option>
+                        <option value="20:00">20:00</option>
+                        <option value="20:30">20:30</option>
+                        <option value="21:00">21:00</option>
+                        <option value="21:30">21:30</option>
+                        <option value="22:00">22:00</option>
+                        <option value="22:30">22:30</option>
+                        <option value="23:00">23:00</option>
+                        <option value="23:30">23:30</option>
+                        <option value="00:00">00:00</option>
+                        <option value="01:00">01:00</option>
+                        <option value="02:00">02:00</option>
+                        <option value="03:00">03:00</option>
+                        <option value="04:00">04:00</option>
+                        <option value="05:00">05:00</option>
+                        <option value="06:00">06:00</option>
+                    </select>
+                </label>
+            </div>
+
+            <div>
+
+                <label>
+                    <select class="to" onchange="toChange();">
+                        <option value="Время конца дня">Время конца дня</option>
+                        <option value="10:30">10:30</option>
+                        <option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option>
+                        <option value="14:30">14:30</option>
+                        <option value="15:00">15:00</option>
+                        <option value="15:30">15:30</option>
+                        <option value="16:00">16:00</option>
+                        <option value="16:30">16:30</option>
+                        <option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option>
+                        <option value="18:00">18:00</option>
+                        <option value="18:30">18:30</option>
+                        <option value="19:00">19:00</option>
+                        <option value="19:30">19:30</option>
+                        <option value="20:00">20:00</option>
+                        <option value="20:30">20:30</option>
+                        <option value="21:00">21:00</option>
+                        <option value="21:30">21:30</option>
+                        <option value="22:00">22:00</option>
+                        <option value="22:30">22:30</option>
+                        <option value="23:00">23:00</option>
+                        <option value="23:30">23:30</option>
+                        <option value="00:00">00:00</option>
+                        <option value="01:00">01:00</option>
+                        <option value="02:00">02:00</option>
+                        <option value="03:00">03:00</option>
+                        <option value="04:00">04:00</option>
+                        <option value="05:00">05:00</option>
+                        <option value="06:00">06:00</option>
+                        <option value="07:00">07:00</option>
+                        <option value="07:30">07:30</option>
+                        <option value="08:00">08:00</option>
+                        <option value="08:30">08:30</option>
+                        <option value="09:00">09:00</option>
+                        <option value="09:30">09:30</option>
+                        <option value="10:00">10:00</option>
+                    </select>
+                </label>
+            </div>
         </div>
-    </div>
 
-    <div>
-        <div>Сообщение</div>
-        <textarea cols="30" rows="10" placeholder="Опишите что случилось" class="message"></textarea>
+
     </div>
 </div>
 <script>
+    let to = document.querySelector(".to");
+    let from = document.querySelector(".from");
 
-    function notify(){
-        document.querySelector(".text").innerText = `${tg.initDataUnsafe.user.first_name}
-        ${tg.initDataUnsafe.user.last_name}
-        ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code}) ${tg.initDataUnsafe.user.id}`;
+    function toChange(){
+        tg.MainButton.text = `Работал ${from.value} - ${to.value}`;
     }
+
+    function fromChange(){
+        tg.MainButton.text = `Работал ${from.value} - ...`;
+    }
+
 
     let tg = window.Telegram.WebApp; //получаем объект webapp телеграма
     tg.expand(); //расширяем на все окно
-    tg.MainButton.text = "Отправить"; //изменяем текст кнопки
+    tg.MainButton.text = "Заполните поля"; //изменяем текст кнопки
     tg.MainButton.textColor = "#E0FFFF"; //изменяем цвет текста кнопки
     tg.MainButton.color = "#143F6B"; //изменяем цвет бэкграунда кнопки
     tg.MainButton.show();
@@ -87,28 +180,35 @@
 
         tg.MainButton.disable()
 
-        const from = document.querySelector('.date-start').value;
-        const to = document.querySelector('.date-end').value;
-        const cause = document.querySelector('.cause').value;
-        const message = document.querySelector('.message').value;
-
-        let user_id = new URL(window.location.href).searchParams.get("user");
+        const link = new URL(window.location.href);
+        let user_id = link.searchParams.get("user");
+        let task_id = link.searchParams.get("task");
 
 
 
-        if ( !from || !to || !cause || !message){
+        if ( to.value === "Время конца дня" || from.value === "Время начала дня"){
             alert(`Заполните все поля`);
         } else {
 
+            const splitFrom = from.value.split(':')
+            const splitTo = to.value.split(':')
+
+            const time = new Date()
+            time.setHours(splitTo[0] - splitFrom[0], splitTo[1] - splitFrom[1])
+
+            const result = `${time.getHours() > 10 ? time.getHours() : "0" + time.getHours() }:${ time.getMinutes() > 10 ? time.getMinutes() : "0" + time.getMinutes() }`
+
+            alert(result)
+
             let data = {
-                cause,
-                message,
                 from,
                 to,
+                result,
                 user_id,
+                task_id
             }
 
-            const url = 'https://f6ce-46-48-25-143.ngrok-free.app/web-data';
+            const url = 'https://f6ce-46-48-25-143.ngrok-free.app/web-time';
 
             let response = await fetch(url, {
                 method: 'POST',
@@ -120,6 +220,9 @@
 
             if (response.status === 200) {
                 tg.close();
+            } else {
+                alert("Ошибка");
+                tg.MainButton.enable()
             }
 
         }

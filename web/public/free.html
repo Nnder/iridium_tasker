@@ -69,12 +69,6 @@
 </div>
 <script>
 
-    function notify(){
-        document.querySelector(".text").innerText = `${tg.initDataUnsafe.user.first_name}
-        ${tg.initDataUnsafe.user.last_name}
-        ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code}) ${tg.initDataUnsafe.user.id}`;
-    }
-
     let tg = window.Telegram.WebApp; //получаем объект webapp телеграма
     tg.expand(); //расширяем на все окно
     tg.MainButton.text = "Отправить"; //изменяем текст кнопки
@@ -120,6 +114,9 @@
 
             if (response.status === 200) {
                 tg.close();
+            } else {
+                alert("Ошибка");
+                tg.MainButton.enable()
             }
 
         }
