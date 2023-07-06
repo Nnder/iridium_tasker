@@ -2,9 +2,6 @@ const {bot} = require("../../index");
 const {getTaskForToday, setUTC} = require("./getTask");
 const {addHours} = require("./addHours");
 
-
-
-
 async function fact(msg, match, date = setUTC(new Date())){
     const chat_id = msg.chat.id;
     const task = await getTaskForToday(chat_id, date);
@@ -32,6 +29,32 @@ async function fact(msg, match, date = setUTC(new Date())){
     // })
 }
 
+async function startFact(msg) {
+    const chat_id = msg.chat.id;
+
+    let options = {
+        reply_markup: JSON.stringify({
+
+            inline_keyboard: [
+                [
+                    { text: "Ввести факт", callback_data: JSON.stringify({type: "Enter fact", chat_id: msg.chat.id}) },
+                ],
+            ],
+            one_time_keyboard: true
+        })
+    };
+
+
+    let messageWithKeyboard = await bot.sendMessage(msg.chat.id, "Что сделал за сегодня?", options);
+
+    const timer = setTimeout(()=>{
+        const {message_id} = messageWithKeyboard;
+        bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+        bot.sendMessage(chat_id, "Вы не заполнили факт");
+    }, 1000*60*30);
+}
+
 module.exports = {
-    fact
+    fact,
+    startFact
 }

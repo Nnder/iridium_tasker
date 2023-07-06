@@ -21,63 +21,52 @@ function addHours(msg, task){
 
     let countClick = 0;
 
-    bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
-
-        const {type, task_id} = JSON.parse(callbackQuery.data);
-        const message_id = callbackQuery.message.message_id;
-
-        await bot.answerCallbackQuery(callbackQuery.id)
-
-        ++countClick
-        if (countClick === 1) {
-
-            bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
-
-            try {
-                switch (type) {
-                    case "Full day":
-
-                        // write a function
-
-                        const user = await users.findOne({where:{chat_id: chat_id}})
-
-
-
-                        const split = user.work_time.split('-');
-
-                        const from = split[0].split(':');
-                        const to = split[1].split(':');
-
-                        console.log(from + "|" + to);
-
-                        const time = new Date()
-                        time.setHours(to[0] - from[0], to[1] - from[1])
-
-                        const result = `${time.getHours() > 10 ? time.getHours() : "0" + time.getHours() }:${ time.getMinutes() > 10 ? time.getMinutes() : "0" + time.getMinutes() }`;
-
-                        console.log(result);
-
-
-                        task.update({
-                            "hours": result
-                        })
-
-                        bot.sendMessage(chat_id, "Полный день");
-
-                        break;
-                    case "Not full day":
-                        bot.sendMessage(chat_id, "Не полный день");
-                        task.update({
-                            "hours": 2
-                        })
-                        break;
-                }
-            } catch (e) {
-                bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
-                bot.sendMessage(chat_id, e.message);
-            }
-        }
-    });
+    // bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
+    //
+    //     const {type, task_id} = JSON.parse(callbackQuery.data);
+    //     const message_id = callbackQuery.message.message_id;
+    //
+    //     await bot.answerCallbackQuery(callbackQuery.id)
+    //
+    //     ++countClick
+    //     if (countClick === 1) {
+    //
+    //         bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+    //
+    //         try {
+    //             switch (type) {
+    //                 case "Full day":
+    //
+    //                     const user = await users.findOne({where:{chat_id: chat_id}})
+    //                     const split = user.work_time.split('-');
+    //                     const from = split[0].split(':');
+    //                     const to = split[1].split(':');
+    //
+    //                     const time = new Date()
+    //                     time.setHours(to[0] - from[0], to[1] - from[1])
+    //
+    //                     const result = `${time.getHours() > 10 ? time.getHours() : "0" + time.getHours() }:${ time.getMinutes() > 10 ? time.getMinutes() : "0" + time.getMinutes() }`;
+    //
+    //                     task.update({
+    //                         "hours": result
+    //                     })
+    //
+    //                     bot.sendMessage(chat_id, "Полный день");
+    //
+    //                     break;
+    //                 case "Not full day":
+    //                     bot.sendMessage(chat_id, "Не полный день");
+    //                     task.update({
+    //                         "hours": 2
+    //                     })
+    //                     break;
+    //             }
+    //         } catch (e) {
+    //             bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
+    //             bot.sendMessage(chat_id, e.message);
+    //         }
+    //     }
+    // });
 }
 
 
