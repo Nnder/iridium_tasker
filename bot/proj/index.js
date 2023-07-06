@@ -2,8 +2,13 @@ require('dotenv').config({ path: '.env' });
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, {polling: {interval: 300, autoStart: true}});
+const sequelize = require('./database/db');
+const {users,tasks,freeDays} = require('./database/models');
 const webAppUrl = process.env.WEB_APP_URL;
 const CronJob = require('cron').CronJob;
+
+
+
 
 module.exports = {
     bot,
@@ -11,8 +16,10 @@ module.exports = {
     CronJob
 };
 
-const sequelize = require('./database/db');
-const {users,tasks,freeDays} = require('./database/models');
+
+
+
+
 
 console.log('Бот запущен');
 
@@ -58,7 +65,7 @@ bot.onText(/\/plan/, async (msg, match) => {
         debt(msg, match);
 
     } else {
-        startPlan(msg);
+        startPlan(chat_id);
     }
 });
 
@@ -79,9 +86,7 @@ bot.onText(/\/fact/, async (msg, match) => {
         bot.sendMessage(chat_id, "Ваш факт \n"+exist?.fact)
 
     } else {
-        startFact(msg);
-
-
+        startFact(chat_id);
     }
 });
 
@@ -91,6 +96,7 @@ bot.onText(/\/fact/, async (msg, match) => {
 
 const express = require('express');
 const cors = require('cors');
+
 
 const app = express();
 
@@ -121,7 +127,7 @@ app.post('/web-data', async (req, res) => {
 
         let text = `Уведомление!\n${user.fio.trim()}\nКоманда: ${user.team.trim()}\nПричина: ${cause}\nДата: ${from} - ${to}\n${message}`
 
-        // данные не успели загрузится
+        // данные не успели загрузится (макс 64 байта в callback_data)
 
         // C - confirm, R - refuse
 
@@ -138,57 +144,7 @@ app.post('/web-data', async (req, res) => {
         };
 
         console.log(keyboard.reply_markup.inline_keyboard[0][0].callback_data);
-
         await bot.sendMessage(sto.chat_id, text, keyboard);
-
-        // bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
-        //
-        //     const {type, id, fid} = JSON.parse(callbackQuery.data);
-        //     const chat_id_sto = callbackQuery.message.chat.id;
-        //     const message_id = callbackQuery.message.message_id;
-        //
-        //     await bot.answerCallbackQuery(callbackQuery.id)
-        //
-        //
-        //     switch (type) {
-        //         case "C":
-        //             const user = await users.findOne({where:{ chat_id: id}})
-        //             const lead = await users.findOne({ where: {team: user.team, role: 2}})
-        //
-        //             const free = await freeDays.findOne({where:{id: fid}})
-        //
-        //
-        //             free.update({
-        //                 status: true
-        //             })
-        //
-        //             // проверка на промежуток времени в задаче
-        //
-        //             // if (new Date(from) <= new Date(task.date) && new Date(to) > new Date(task.date)) {
-        //             //     await users.update({ status: false }, {
-        //             //         where: {
-        //             //             chat_id: chat_id
-        //             //         }
-        //             //     });
-        //             // }
-        //
-        //
-        //
-        //
-        //             bot.sendMessage(chat_id, "Вы подтвердили запрос")
-        //             bot.sendMessage(id, "Запрос подтвержден");
-        //             bot.sendMessage(lead.chat_id, "СТО подтвердил запрос\n"+text)
-        //
-        //             break;
-        //         case "R":
-        //             bot.sendMessage(chat_id, "Вы отклонили запрос")
-        //             bot.sendMessage(id, "Запрос отклонен");
-        //             break;
-        //     }
-        //
-        //
-        // })
-
 
         return res.status(200).json({});
     } catch (e) {
@@ -205,7 +161,7 @@ app.post('/web-time', async (req, res) => {
         const {from, to, result, user_id, task_id} = req.body
 
         const task = await tasks.findOne({where:{ id: task_id}})
-        task.update({hours: result});
+        await task.update({hours: result});
 
         console.log(result)
         console.log(`${from} ${to}`);
@@ -228,9 +184,9 @@ app.listen(PORT, () => console.log('server started on PORT ' + PORT));
 
 
 bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
-    // fid - freeDays id
+    // fid - freeDays id, tid - task id
 
-    const {type, date, id, fid} = JSON.parse(callbackQuery.data);
+    const {type, date, id, fid, tid} = JSON.parse(callbackQuery.data);
     const chat_id = callbackQuery.message.chat.id;
     const msg = callbackQuery.message
     const message_id = callbackQuery.message.message_id;
@@ -276,11 +232,11 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
             // debt
 
-
-            case "Enter Plan Past":
+            // Enter Plan Debt
+            case "EPD":
 
                 await bot.editMessageReplyMarkup({inline_keyboard: [[
-                        { text: "Ввести Факт", callback_data: JSON.stringify({type: "Enter Fact", chat_id: msg.chat.id, date: date}) },
+                        { text: "Ввести Факт", callback_data: JSON.stringify({type: "EFD", id: id, date: date}) },
                     ]]}, {chat_id, message_id})
 
                 bot.sendMessage(chat_id, `Введите план за ${date}`);
@@ -293,8 +249,11 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                     bot.removeTextListener(/\.*/gmi);
                 })
 
+
+
                 break;
-            case "Enter Fact Past":
+                // Enter Fact Debt
+            case "EFD":
 
 
 
@@ -307,7 +266,8 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 })
 
                 break;
-            case "Not Work Past":
+            // Not Work Debt
+            case "NWP":
                 bot.sendMessage(chat_id, `Не работал ${date}` );
                 // await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id});
                 notWork(msg, await getTaskForToday(chat_id, date))
@@ -320,6 +280,8 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
             case "Full day":
 
                 const user = await users.findOne({where:{chat_id: chat_id}})
+
+                const task = await tasks.findOne({where:{id: tid}})
                 const split = user.work_time.split('-');
                 const from = split[0].split(':');
                 const to = split[1].split(':');
@@ -336,13 +298,6 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 bot.sendMessage(chat_id, "Полный день");
 
                 break;
-            case "Not full day":
-                bot.sendMessage(chat_id, "Не полный день");
-                task.update({
-                    "hours": 2
-                })
-                break;
-
 
 
             // API
@@ -387,3 +342,55 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
         bot.sendMessage(chat_id, e.message);
     }
 });
+
+
+// CRON
+
+
+async function startCron(){
+    const allUsers = await users.findAll({where: {status: true}})
+
+    allUsers.map(async (user)=>{
+        console.log(user.work_time)
+
+        const time = user.work_time.split('-');
+        const start = time[0].split(':');
+        const end = time[1].split(':');
+
+
+
+        let startDay = new CronJob(`00 ${start[1]} ${start[0]} * * 1-5`, async ()=>{
+
+            const exist = await getTaskForToday(user.chat_id, setUTC(new Date()))
+            if (exist !== null && exist?.plan) {
+
+                bot.sendMessage(user.chat_id, "Ваш план \n"+exist?.plan);
+                // debt(msg, match);
+
+            } else {
+                startPlan(user.chat_id)
+            }
+
+
+        })
+        startDay.start();
+
+        let endDay = new CronJob(`00 ${end[1]} ${end[0]} * * 1-5`, async ()=>{
+
+            const exist = await getTaskForToday(user.chat_id, setUTC(new Date()))
+            if (exist === null || exist?.plan === null) {
+                bot.sendMessage(user.chat_id, "Сначала введите план");
+            }
+            else if (exist?.fact !== null ) {
+
+                bot.sendMessage(user.chat_id, "Ваш факт \n"+exist?.fact)
+
+            } else {
+                startFact(user.chat_id)
+            }
+        })
+        endDay.start();
+    })
+}
+
+startCron()

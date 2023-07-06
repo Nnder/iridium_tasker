@@ -27,22 +27,21 @@ async function plan(msg, match, date = setUTC(new Date())) {
 }
 
 
-async function startPlan(msg){
-    const chat_id = msg.chat.id;
+async function startPlan(chat_id){
 
     let options = {
         reply_markup:
             {
                 inline_keyboard: [
                     [
-                        { text: "Ввести план на день", callback_data: JSON.stringify({type: "Enter Plan", chat_id: msg.chat.id}) },
-                        { text: 'Не работаю', callback_data: JSON.stringify({type: "Not Work", chat_id: msg.chat.id}) },
+                        { text: "Ввести план на день", callback_data: JSON.stringify({type: "Enter Plan", chat_id: chat_id}) },
+                        { text: 'Не работаю', callback_data: JSON.stringify({type: "Not Work", chat_id: chat_id}) },
                     ],
                 ],
             }
     };
 
-    let messageWithKeyboard = await bot.sendMessage(msg.chat.id, "Доброе утро! Что на сегодня запланировал?", options)
+    let messageWithKeyboard = await bot.sendMessage(chat_id, "Доброе утро! Что на сегодня запланировал?", options)
 
     const currentDate = setUTC(new Date());
 

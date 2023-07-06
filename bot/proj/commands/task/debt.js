@@ -36,7 +36,7 @@ async function debt(msg, match){
                 {
                     inline_keyboard: [
                         [
-                            { text: "Ввести Факт", callback_data: JSON.stringify({type: "Enter Fact Past", chat_id: msg.chat.id, date: task.date}) },
+                            { text: "Ввести Факт", callback_data: JSON.stringify({type: "EFD", id: msg.chat.id, date: task.date}) },
                         ],
                     ],
                 }
@@ -47,8 +47,8 @@ async function debt(msg, match){
                 {
                     inline_keyboard: [
                         [
-                            { text: "Ввести план", callback_data: JSON.stringify({type: "Enter Plan Past", chat_id: msg.chat.id, date: task.date}) },
-                            { text: 'Не работаю', callback_data: JSON.stringify({type: "Not Work Past", chat_id: msg.chat.id, date: task.date}) },
+                            { text: "Ввести план", callback_data: JSON.stringify({type: "EPD", id: msg.chat.id, date: task.date}) },
+                            { text: 'Не работаю', callback_data: JSON.stringify({type: "NWD", id: msg.chat.id, date: task.date}) },
                         ],
                     ],
                 }

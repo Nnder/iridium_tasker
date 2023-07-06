@@ -8,7 +8,7 @@ async function fact(msg, match, date = setUTC(new Date())){
 
     if (task !== null && task?.plan !== null) {
 
-        task.update({
+        await task.update({
             "fact": msg.text
         })
 
@@ -29,15 +29,14 @@ async function fact(msg, match, date = setUTC(new Date())){
     // })
 }
 
-async function startFact(msg) {
-    const chat_id = msg.chat.id;
+async function startFact(chat_id) {
 
     let options = {
         reply_markup: JSON.stringify({
 
             inline_keyboard: [
                 [
-                    { text: "Ввести факт", callback_data: JSON.stringify({type: "Enter fact", chat_id: msg.chat.id}) },
+                    { text: "Ввести факт", callback_data: JSON.stringify({type: "Enter fact", chat_id: chat_id}) },
                 ],
             ],
             one_time_keyboard: true
@@ -45,7 +44,7 @@ async function startFact(msg) {
     };
 
 
-    let messageWithKeyboard = await bot.sendMessage(msg.chat.id, "Что сделал за сегодня?", options);
+    let messageWithKeyboard = await bot.sendMessage(chat_id, "Что сделал за сегодня?", options);
 
     const timer = setTimeout(()=>{
         const {message_id} = messageWithKeyboard;

@@ -10,7 +10,7 @@ function addHours(msg, task){
             {
                 inline_keyboard: [
                     [
-                        { text: "Полный день", callback_data: JSON.stringify({type: "Full day", chat_id: chat_id}) },
+                        { text: "Полный день", callback_data: JSON.stringify({type: "Full day", id: chat_id, tid: task.id}) },
                         { text: "Не полный день", web_app: {url: `${webAppUrl}/time.html?user=${chat_id}&task=${task.id}`}}
                     ],
                 ]
