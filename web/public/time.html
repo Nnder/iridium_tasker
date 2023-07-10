@@ -37,7 +37,9 @@
             margin-bottom: 20px
         }
 
-        input {
+        select {
+            color: var(--tg-theme-link-color);
+            background: var(--tg-theme-bg-color);
             font-size: 20px;
             margin-top: 5px;
         }
@@ -176,6 +178,8 @@
     tg.MainButton.show();
 
 
+
+
     Telegram.WebApp.onEvent('mainButtonClicked', async function(){
 
         tg.MainButton.disable()
@@ -183,8 +187,6 @@
         const link = new URL(window.location.href);
         let user_id = link.searchParams.get("user");
         let task_id = link.searchParams.get("task");
-
-
 
         if ( to.value === "Время конца дня" || from.value === "Время начала дня"){
             alert(`Заполните все поля`);
@@ -201,11 +203,11 @@
             alert(result)
 
             let data = {
-                from,
-                to,
+                from : from.value,
+                to: to.value,
                 result,
                 user_id,
-                task_id
+                task_id,
             }
 
             const url = 'https://f6ce-46-48-25-143.ngrok-free.app/web-time';

@@ -52,11 +52,16 @@ async function startPlan(chat_id){
         })
     }
 
+    const timer = setTimeout(async ()=>{
+        // из-за того что не могу получить по id сообщение пришлось изворачиватся
+        try {
+            const {message_id} = messageWithKeyboard;
+            await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+            await bot.sendMessage(chat_id, "Вы не заполнили план");
+        } catch (e) {
+            console.log("Клавиатура уже была изменена")
+        }
 
-    const timer = setTimeout(()=>{
-        const {message_id} = messageWithKeyboard;
-        bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
-        bot.sendMessage(chat_id, "Вы не заполнили план");
     }, 1000*60*60*8);
 }
 

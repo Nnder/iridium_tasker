@@ -19,14 +19,6 @@ async function fact(msg, match, date = setUTC(new Date())){
         bot.sendMessage(chat_id, "Факт не записан");
     }
 
-
-    // bot.sendMessage(chat_id, "Введите факт", {reply_markup: JSON.stringify({ force_reply: true })}).then(msg =>{
-    //     let replyId = bot.onReplyToMessage(chat_id, msg.message_id,(msg)=>{
-    //
-    //
-    //         bot.removeReplyListener(replyId);
-    //     })
-    // })
 }
 
 async function startFact(chat_id) {
@@ -46,10 +38,15 @@ async function startFact(chat_id) {
 
     let messageWithKeyboard = await bot.sendMessage(chat_id, "Что сделал за сегодня?", options);
 
-    const timer = setTimeout(()=>{
-        const {message_id} = messageWithKeyboard;
-        bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
-        bot.sendMessage(chat_id, "Вы не заполнили факт");
+    const timer = setTimeout(async ()=>{
+        // из-за того что не могу получить по id сообщение пришлось изворачиватся
+        try {
+            const {message_id} = messageWithKeyboard;
+            await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+            await bot.sendMessage(chat_id, "Вы не заполнили факт");
+        } catch (e) {
+            console.log("Клавиатура уже была изменена")
+        }
     }, 1000*60*30);
 }
 

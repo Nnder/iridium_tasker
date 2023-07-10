@@ -6,8 +6,7 @@ const {plan} = require('./plan');
 const {fact} = require('./fact');
 const {notWork} = require("../notWork/notWork");
 
-async function debt(msg, match){
-    const chat_id = msg.chat.id;
+async function debt(chat_id, match = ""){
 
     let start = new Date(0);
 
@@ -63,85 +62,16 @@ async function debt(msg, match){
         }
 
 
-        setTimeout(()=>{
-            const {message_id} = messageWithKeyboard;
-            bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+        let time = setTimeout(async ()=>{
+            // из-за того что не могу получить по id сообщение пришлось изворачиваться
+            try {
+                const {message_id} = messageWithKeyboard;
+                await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+            } catch (e) {
+                console.log("Клавиатура уже была изменена")
+            }
         }, 1000*60*60*8);
     })
-
-
-
-
-
-
-    // await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
-
-
-    // bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
-    //     const {type} = JSON.parse(callbackQuery.data);
-    //     const chat_id = callbackQuery.message.chat.id;
-    //     const message_id = callbackQuery.message.message_id;th
-    //
-    //     const {date} = JSON.parse(callbackQuery.data);
-    //
-    //
-    //     await bot.answerCallbackQuery(callbackQuery.id)
-    //     // clearTimeout(timer)
-    //
-    //     try {
-    //         switch (type) {
-    //             case "Enter Plan Past":
-    //
-    //
-    //
-    //                 await bot.editMessageReplyMarkup({inline_keyboard: [[
-    //                         { text: "Ввести Факт", callback_data: JSON.stringify({type: "Enter Fact", chat_id: msg.chat.id, date: date}) },
-    //                     ]]}, {chat_id, message_id})
-    //
-    //                 bot.sendMessage(chat_id, `Введите план за ${date}`);
-    //
-    //                 console.log(new Date(date));
-    //
-    //                 bot.onText(/\.*/gmi , (msg)=>{
-    //                     plan(msg, match, new Date(date))
-    //                     bot.sendMessage(chat_id, msg.text);
-    //                     bot.removeTextListener(/\.*/gmi);
-    //                 })
-    //
-    //                 break;
-    //             case "Enter Fact Past":
-    //
-    //
-    //
-    //                 await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id});
-    //
-    //                 bot.sendMessage(chat_id, `Введите факт за ${date}`)
-    //                 bot.onText(/\.*/gmi, (msg) => {
-    //                     fact(msg, match, date)
-    //                     bot.removeTextListener(/\.*/gmi);
-    //                 })
-    //
-    //                 break;
-    //             case "Not Work Past":
-    //                 bot.sendMessage(chat_id, `Не работал ${date}` );
-    //                 await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id});
-    //                 notWork(msg, await getTaskForToday(chat_id, date))
-    //                 break;
-    //         }
-    //     } catch (e){
-    //         bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
-    //     }
-    //
-    //
-    // });
-
-
-
-
-
-
-
-
 
     // получить все задачи у которых был не введен план или факт
     // в случае если был не введен факт выводить пользователю его план и просить дописать факт

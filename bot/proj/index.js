@@ -7,9 +7,6 @@ const {users,tasks,freeDays} = require('./database/models');
 const webAppUrl = process.env.WEB_APP_URL;
 const CronJob = require('cron').CronJob;
 
-
-
-
 module.exports = {
     bot,
     webAppUrl,
@@ -17,11 +14,8 @@ module.exports = {
 };
 
 
-
-
-
-
 console.log('Бот запущен');
+const {canSend} = require("./commands/user/canSend");
 
 const {start} = require('./commands/start');
 bot.onText(/\/start/, (msg, match) => {
@@ -30,23 +24,41 @@ bot.onText(/\/start/, (msg, match) => {
 
 const {info} = require('./commands/user/info');
 bot.onText(/\/info/, (msg, match) => {
-    info(msg, match);
+    canSend(msg.chat.id).then((res)=> {
+        if (res){
+            info(msg, match);
+        } else {
+            bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+        }
+
+    })
 });
 
 const {getFullPlan} = require("./commands/task/getFullPlan");
 bot.onText(/\/week/, (msg, match) => {
 
-    let currentDay = setUTC(new Date()).getDay(); //(0-6)
+    canSend(msg.chat.id).then((res)=>{
+        if (res){
+            let currentDay = setUTC(new Date()).getDay(); //(0-6)
 
-    if (currentDay >= 1){
-        let start = setUTC(new Date())
-        start.setDate(start.getDate() - (currentDay - 1))
-        getFullPlan(msg, start)
-    } else {
-        let start = setUTC(new Date())
-        start.setDate(start.getDate() - (currentDay - 1))
-        getFullPlan(msg, start)
-    }
+            if (currentDay >= 1){
+                let start = setUTC(new Date())
+                start.setDate(start.getDate() - (currentDay - 1))
+                getFullPlan(msg, start)
+            } else {
+                let start = setUTC(new Date())
+                start.setDate(start.getDate() - (currentDay - 1))
+                getFullPlan(msg, start)
+            }
+        } else {
+            bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+        }
+
+    })
+
+
+
+
 });
 
 
@@ -54,39 +66,51 @@ const {getTaskForToday, setUTC} = require('./commands/task/getTask');
 
 const {plan, startPlan} = require('./commands/task/plan');
 const {notWork} = require("./commands/notWork/notWork");
+const {debt} = require("./commands/task/debt");
+
 bot.onText(/\/plan/, async (msg, match) => {
 
-    const chat_id = msg.chat.id;
-    const exist = await getTaskForToday(chat_id, setUTC(new Date()))
+        if (await canSend(msg.chat.id)) {
 
-    if (exist !== null && exist?.plan) {
+            const chat_id = msg.chat.id;
+            const exist = await getTaskForToday(chat_id, setUTC(new Date()))
 
-        bot.sendMessage(chat_id, "Ваш план \n"+exist?.plan);
-        debt(msg, match);
+            if (exist !== null && exist?.plan) {
 
-    } else {
-        startPlan(chat_id);
-    }
+                bot.sendMessage(chat_id, "Ваш план \n" + exist?.plan);
+                debt(msg.chat.id, match);
+
+            } else {
+                startPlan(chat_id);
+            }
+        } else {
+            bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+        }
+
 });
 
 
 
 const {fact, startFact} = require('./commands/task/fact');
-const {debt} = require("./commands/task/debt");
 
 bot.onText(/\/fact/, async (msg, match) => {
 
-    const chat_id = msg.chat.id;
-    const exist = await getTaskForToday(chat_id, setUTC(new Date()))
-    if (exist === null || exist?.plan === null) {
-        bot.sendMessage(chat_id, "Сначала введите план");
-    }
-    else if (exist?.fact !== null ) {
+    if (await canSend(msg.chat.id)) {
 
-        bot.sendMessage(chat_id, "Ваш факт \n"+exist?.fact)
+        const chat_id = msg.chat.id;
+        const exist = await getTaskForToday(chat_id, setUTC(new Date()))
+        if (exist === null || exist?.plan === null) {
+            bot.sendMessage(chat_id, "Сначала введите план");
+        } else if (exist?.fact !== null) {
+
+            bot.sendMessage(chat_id, "Ваш факт \n" + exist?.fact)
+
+        } else {
+            startFact(chat_id);
+        }
 
     } else {
-        startFact(chat_id);
+        bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
     }
 });
 
@@ -96,6 +120,7 @@ bot.onText(/\/fact/, async (msg, match) => {
 
 const express = require('express');
 const cors = require('cors');
+
 
 
 const app = express();
@@ -213,7 +238,7 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 bot.onText(/\.*/gmi , async (msg)=>{
                     await plan(msg, match)
                     bot.removeTextListener(/\.*/gmi);
-                    await debt(msg, match);
+                    await debt(msg.chat.id, match);
                 })
                 break;
             case "Enter fact":
@@ -239,16 +264,28 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                         { text: "Ввести Факт", callback_data: JSON.stringify({type: "EFD", id: id, date: date}) },
                     ]]}, {chat_id, message_id})
 
-                bot.sendMessage(chat_id, `Введите план за ${date}`);
+                let messageWithKeyboard = await bot.sendMessage(chat_id, `Введите план за ${date}`);
 
                 console.log(new Date(date));
 
                 bot.onText(/\.*/gmi , (msg)=>{
                     plan(msg, match, new Date(date))
-                    bot.sendMessage(chat_id, msg.text);
+                    // bot.sendMessage(chat_id, msg.text);
                     bot.removeTextListener(/\.*/gmi);
                 })
 
+
+
+
+                const timer = setTimeout(async ()=>{
+                    // из-за того что не могу получить по id сообщение пришлось изворачиватся
+                    try {
+                        const {message_id} = messageWithKeyboard;
+                        await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+                    } catch (e) {
+                        console.log("Клавиатура уже была изменена")
+                    }
+                }, 1000*60*60*8);
 
 
                 break;
@@ -365,7 +402,7 @@ async function startCron(){
             if (exist !== null && exist?.plan) {
 
                 bot.sendMessage(user.chat_id, "Ваш план \n"+exist?.plan);
-                // debt(msg, match);
+                debt(chat_id, match);
 
             } else {
                 startPlan(user.chat_id)
