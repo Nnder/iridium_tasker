@@ -230,22 +230,41 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
     // создаем задачу на сегодня
     // если выбрано не работаю то задача удаляется
 
+    const regexp = new RegExp(`.*|${chat_id}`, "gmi");
+
     try {
         switch (type) {
             case "Enter Plan":
                 bot.sendMessage(chat_id, "Введите план");
 
-                bot.onText(/\.*/gmi , async (msg)=>{
-                    await plan(msg, match)
-                    bot.removeTextListener(/\.*/gmi);
-                    await debt(msg.chat.id, match);
+
+
+                bot.onText(regexp , async (msg)=>{
+                    if (msg.chat.id == chat_id) {
+                        await plan(msg, match)
+                        bot.removeTextListener(regexp);
+                        await debt(msg.chat.id, match);
+                    } else {
+                        console.log(`${msg.chat.id} - ${chat_id}`);
+                    }
+
                 })
+
+                // bot.once("text", async (msg)=>{
+                //     await plan(msg, match)
+                //     // bot.removeTextListener(/\.*/gmi);
+                //     await debt(msg.chat.id, match);
+                // })
                 break;
             case "Enter fact":
                 bot.sendMessage(chat_id, "Введите факт")
-                bot.onText(/\.*/gmi, (msg) => {
-                    fact(msg, match)
-                    bot.removeTextListener(/\.*/gmi);
+
+                bot.onText(regexp, (msg) => {
+                    if (msg.chat.id == chat_id) {
+                        fact(msg, match)
+                        bot.removeTextListener(regexp);
+                    }
+
                 })
                 break;
             case "Not Work":
@@ -268,10 +287,12 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
                 console.log(new Date(date));
 
-                bot.onText(/\.*/gmi , (msg)=>{
-                    plan(msg, match, new Date(date))
-                    // bot.sendMessage(chat_id, msg.text);
-                    bot.removeTextListener(/\.*/gmi);
+                bot.onText(regexp, (msg)=>{
+                    if (msg.chat.id == chat_id) {
+                        plan(msg, match, new Date(date))
+                        // bot.sendMessage(chat_id, msg.text);
+                        bot.removeTextListener(regexp);
+                    }
                 })
 
 
@@ -297,9 +318,11 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 // await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id});
 
                 bot.sendMessage(chat_id, `Введите факт за ${date}`)
-                bot.onText(/\.*/gmi, (msg) => {
-                    fact(msg, match, date)
-                    bot.removeTextListener(/\.*/gmi);
+                bot.onText(regexp, (msg) => {
+                    if (msg.chat.id == chat_id) {
+                        fact(msg, match, date)
+                        bot.removeTextListener(regexp);
+                    }
                 })
 
                 break;

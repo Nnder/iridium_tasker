@@ -1,15 +1,3 @@
-// запускается 1 раз больше не работает
-// вызывает команды
-// setFIO (не нужна)
-// график работы (не нужна)
-// setPhone (нужна)
-// changeTeam (нужна)
-// profession (не нужна)
-
-// checkPhone (нужна)
-// info (нужна)
-// changeTeam (нужна)
-
 const {users} = require("../database/models");
 const sequelize = require("../database/db");
 const { Op} = require('sequelize');
@@ -42,44 +30,49 @@ async function start(msg, match){
 
 
     if (await isIdUnique(chatId)) {
-        bot.sendMessage(chatId, 'Вы уже зарегестрированы', remove)
+        bot.sendMessage(chatId, 'Вы уже зарегистрированы', remove)
     } else {
         bot.sendMessage(chatId, 'Вас нет в списке, отправьте номер ', reqPhone)
 
-        bot.once('contact', async (msg) => {
-            const telUser = msg.contact.phone_number.replace('+', '')
-            const exist = await getTaskForToday(user.chat_id, setUTC(new Date()))
+        await bot.once('contact', async (msg) => {
+            if (chatId === msg.chat.id){
+                const telUser = msg.contact.phone_number.replace('+', '')
+                const exist = await getTaskForToday(msg.chat.id, setUTC(new Date()))
 
-            const isIdUnique = phone =>
-                users.findOne({ where: { phone }, attributes: ['phone'] })
-                    .then(token => token !== null)
-                    .then(isUnique => isUnique);
+                const isIdUnique = phone =>
+                    users.findOne({ where: { phone }, attributes: ['phone'] })
+                        .then(token => token !== null)
+                        .then(isUnique => isUnique);
 
-            isIdUnique(telUser).then(isUnique => {
-                if (isUnique) {
-                    bot.sendMessage(chatId, 'Вы можете начать работать с ботом', remove)
-                    sequelize.query("UPDATE users SET chat_id = $2 WHERE phone = $1", {
-                        bind: [telUser, chatId],
-                        model: users,
-                        mapToModel: true,
-                        type: Op.SELECT,
-                    })
+                isIdUnique(telUser).then(isUnique => {
+                    if (isUnique) {
+                        bot.sendMessage(chatId, 'Вы можете начать работать с ботом', remove)
+                        sequelize.query("UPDATE users SET chat_id = $2 WHERE phone = $1", {
+                            bind: [telUser, chatId],
+                            model: users,
+                            mapToModel: true,
+                            type: Op.SELECT,
+                        })
 
-                    info(msg, match);
-                    if (exist !== null && exist?.plan) {
+                        info(msg, match).then(()=>{
+                            if (exist !== null && exist?.plan) {
 
-                        bot.sendMessage(user.chat_id, "Ваш план \n"+exist?.plan);
-                        // debt(msg, match);
+                                bot.sendMessage(msg.chat.id, "Ваш план \n"+exist?.plan);
+                                // debt(msg, match);
+
+                            } else {
+                                startPlan(msg.chat.id)
+                            }
+                        })
+
+
 
                     } else {
-                        startPlan(user.chat_id)
+                        bot.sendMessage(chatId, 'Вас нет в списке, обратитесь к администратору', remove);
                     }
+                })
+            }
 
-
-                } else {
-                    bot.sendMessage(chatId, 'Вас нет в списке, обратьтесь к администратору', remove);
-                }
-            })
         })
     }
 }
