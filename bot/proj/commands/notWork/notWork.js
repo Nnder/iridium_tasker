@@ -12,27 +12,50 @@ const {where, Op} = require("sequelize");
 async function notWork(msg, task){
     const chat_id = msg.chat.id;
 
-
     await task.destroy();
+
+    const messageWithKeyboard = await bot.sendMessage(chat_id, "Заполните форму");
+    const {message_id} = messageWithKeyboard;
 
     const webAppKeyboard = {
         reply_markup: {
             inline_keyboard: [
-                [{text:"Форма", web_app: {url: `${webAppUrl}/free.html?user=${chat_id}`}}]
+                [{text:"Форма", web_app: {url: `${webAppUrl}/free.html?user=${chat_id}&mid=${message_id}`}}]
             ]
         }
     }
 
-    const messageWithKeyboard = await bot.sendMessage(chat_id, "Заполните форму", webAppKeyboard);
-
+    const sentMessage = await bot.editMessageReplyMarkup(webAppKeyboard.reply_markup, {chat_id, message_id})
 
     const timer = setTimeout(()=>{
-        const {message_id} = messageWithKeyboard;
-        bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
-        bot.sendMessage(chat_id, "Вы не заполнели форму");
-    }, 1000*60*60*10);
+        try {
+            bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+            bot.sendMessage(chat_id, "Вы не заполняли форму");
+        } catch (e) {
+            console.log("Клавиатура уже была изменена")
+        }
+    }, 1000*60*60*2);
+}
+
+
+
+async function canWorkToday(from){
+    const today = new Date();
+    today.setHours(0,0,0,0,);
+
+    const date = new Date(from)
+    date.setHours(0,0,0,0);
+
+    if (today.toString() == date.toString()){
+        console.log(`Они равны ${today.toString()} ${date.toString()}`)
+    } else {
+        console.log(`Они не равны ${today.toString()} ${date.toString()}`)
+    }
+
+    return today.toString() == date.toString()
 }
 
 module.exports = {
+    canWorkToday,
     notWork
 }

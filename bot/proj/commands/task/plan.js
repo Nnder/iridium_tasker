@@ -1,6 +1,6 @@
 const {bot} = require("../../index");
 const {getTaskForToday, setUTC} = require("./getTask");
-const {tasks} = require("../../database/models");
+const {tasks, users} = require("../../database/models");
 
 
 async function plan(msg, match, date = setUTC(new Date())) {
@@ -52,6 +52,8 @@ async function startPlan(chat_id){
         })
     }
 
+    console.log(await timestampWork(chat_id))
+
     const timer = setTimeout(async ()=>{
         // из-за того что не могу получить по id сообщение пришлось изворачиватся
         try {
@@ -62,8 +64,23 @@ async function startPlan(chat_id){
             console.log("Клавиатура уже была изменена")
         }
 
-    }, 1000*60*60*8);
+    }, await timestampWork(chat_id));
 }
+
+
+async function timestampWork(chat_id, minus = 0){
+    const user = await users.findOne({where:{chat_id: chat_id}})
+
+    const split = user.work_time.split('-');
+    const from = split[0].split(':');
+    const to = split[1].split(':');
+
+    const time = new Date()
+    time.setHours(to[0] - from[0], to[1] - from[1])
+
+    return ((1000*60*60) * time.getHours()) + ((1000*60) * time.getMinutes()) - minus;
+}
+
 
 module.exports = {
     plan,

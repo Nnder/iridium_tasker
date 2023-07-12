@@ -187,6 +187,7 @@
         const link = new URL(window.location.href);
         let user_id = link.searchParams.get("user");
         let task_id = link.searchParams.get("task");
+        let mid = link.searchParams.get("mid");
 
         if ( to.value === "Время конца дня" || from.value === "Время начала дня"){
             alert(`Заполните все поля`);
@@ -208,9 +209,10 @@
                 result,
                 user_id,
                 task_id,
+                mid,
             }
 
-            const url = 'https://f6ce-46-48-25-143.ngrok-free.app/web-time';
+            const url = 'https://bbdd-46-48-25-143.ngrok-free.app/web-time';
 
             let response = await fetch(url, {
                 method: 'POST',

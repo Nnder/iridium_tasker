@@ -47,7 +47,7 @@ async function startFact(chat_id) {
         } catch (e) {
             console.log("Клавиатура уже была изменена")
         }
-    }, 1000*60*30);
+    }, 1000*60*60);
 }
 
 module.exports = {

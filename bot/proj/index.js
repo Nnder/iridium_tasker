@@ -65,7 +65,7 @@ bot.onText(/\/week/, (msg, match) => {
 const {getTaskForToday, setUTC} = require('./commands/task/getTask');
 
 const {plan, startPlan} = require('./commands/task/plan');
-const {notWork} = require("./commands/notWork/notWork");
+const {notWork, canWorkToday} = require("./commands/notWork/notWork");
 const {debt} = require("./commands/task/debt");
 
 bot.onText(/\/plan/, async (msg, match) => {
@@ -132,27 +132,29 @@ app.post('/web-data', async (req, res) => {
     console.log(req.body);
     try {
 
-        const {cause, message, from, to, user_id} = req.body
+        const {cause, msg, from, to, uid, mid} = req.body
 
-        const user = await users.findOne({where:{ chat_id: user_id}})
+        await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id: uid, message_id: mid})
+
+        const user = await users.findOne({where:{ chat_id: uid}})
         const sto = await users.findOne({ where: {role: 3}})
 
 
 
         let {id} = await freeDays.create(
             {
-                chat_id: user_id,
+                chat_id: uid,
                 status: false,
                 cause: cause,
-                message: message,
+                message: msg,
                 from,
                 to
             }
         )
 
-        let text = `Уведомление!\n${user.fio.trim()}\nКоманда: ${user.team.trim()}\nПричина: ${cause}\nДата: ${from} - ${to}\n${message}`
+        let text = `Уведомление!\n${user.fio.trim()}\nКоманда: ${user.team.trim()}\nПричина: ${cause}\nДата: ${from} - ${to}\n${msg}`
 
-        // данные не успели загрузится (макс 64 байта в callback_data)
+        // данные не успели загрузиться (макс 64 байта в callback_data)
 
         // C - confirm, R - refuse
 
@@ -161,14 +163,15 @@ app.post('/web-data', async (req, res) => {
                 {
                     inline_keyboard: [
                         [
-                            { text: "Подтвердить", callback_data: JSON.stringify({type: "C", id: user_id, fid: id}) },
-                            { text: "Отказать", callback_data: JSON.stringify({type: "R", id: user_id, fid: id}) },
+                            { text: "Подтвердить", callback_data: JSON.stringify({type: "C", id: uid, fid: id}) },
+                            { text: "Отказать", callback_data: JSON.stringify({type: "R", id: uid, fid: id}) },
                         ],
                     ],
                 }
         };
 
         console.log(keyboard.reply_markup.inline_keyboard[0][0].callback_data);
+
         await bot.sendMessage(sto.chat_id, text, keyboard);
 
         return res.status(200).json({});
@@ -183,7 +186,9 @@ app.post('/web-time', async (req, res) => {
     console.log(req.body);
     try {
 
-        const {from, to, result, user_id, task_id} = req.body
+        const {from, to, result, user_id, task_id, mid} = req.body
+
+        await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id: user_id, message_id: mid})
 
         const task = await tasks.findOne({where:{ id: task_id}})
         await task.update({hours: result});
@@ -205,13 +210,10 @@ const PORT = 3000;
 
 app.listen(PORT, () => console.log('server started on PORT ' + PORT));
 
-
-
-
 bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
-    // fid - freeDays id, tid - task id
+    // fid - freeDays id, tid - task id, mid - message id
 
-    const {type, date, id, fid, tid} = JSON.parse(callbackQuery.data);
+    const {type, date, id, fid, tid, mid} = JSON.parse(callbackQuery.data);
     const chat_id = callbackQuery.message.chat.id;
     const msg = callbackQuery.message
     const message_id = callbackQuery.message.message_id;
@@ -368,11 +370,15 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 const free = await freeDays.findOne({where:{id: fid}})
 
 
-                free.update({
-                    status: true
-                })
+                await free.update({status: true})
 
                 let text = `Уведомление!\n${freeUser.fio.trim()}\nКоманда: ${freeUser.team.trim()}\nПричина: ${free.cause}\nДата: ${free.from} - ${free.to}\n${free.message}`
+
+                if (canWorkToday(free.from)){
+                    await bot.sendMessage(id, "Сегодня вы не работаете")
+                    await freeUser.update({status: false});
+                }
+
 
                 // проверка на промежуток времени в задаче
 
@@ -411,7 +417,7 @@ async function startCron(){
     const allUsers = await users.findAll({where: {status: true}})
 
     allUsers.map(async (user)=>{
-        console.log(user.work_time)
+        // console.log(user.work_time)
 
         const time = user.work_time.split('-');
         const start = time[0].split(':');
@@ -434,6 +440,20 @@ async function startCron(){
 
         })
         startDay.start();
+
+        const split = user.work_time.split('-');
+        const from = split[0].split(':');
+        const to = split[1].split(':');
+
+        const endTime = new Date()
+        endTime.setHours(to[0], to[1]);
+        endTime.setMinutes(endTime.getMinutes() - 30)
+
+        end[0] = endTime.getHours();
+        end[1] = endTime.getMinutes();
+
+        console.log(`${start} - plan | ${end} - fact`);
+
 
         let endDay = new CronJob(`00 ${end[1]} ${end[0]} * * 1-5`, async ()=>{
 

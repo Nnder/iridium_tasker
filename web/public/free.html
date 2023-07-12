@@ -93,25 +93,27 @@
         const from = document.querySelector('.date-start').value;
         const to = document.querySelector('.date-end').value;
         const cause = document.querySelector('.cause').value;
-        const message = document.querySelector('.message').value;
+        const msg = document.querySelector('.message').value;
 
-        let user_id = new URL(window.location.href).searchParams.get("user");
+        const url = new URL(window.location.href)
+        let uid = url.searchParams.get("user");
+        let mid = url.searchParams.get("mid");
 
 
-
-        if ( !from || !to || !cause || !message){
+        if ( !from || !to || !cause || !msg){
             alert(`Заполните все поля`);
         } else {
 
             let data = {
                 cause,
-                message,
+                msg,
                 from,
                 to,
-                user_id,
+                uid,
+                mid
             }
 
-            const url = 'https://f6ce-46-48-25-143.ngrok-free.app/web-data';
+            const url = 'https://bbdd-46-48-25-143.ngrok-free.app/web-data';
 
             let response = await fetch(url, {
                 method: 'POST',
@@ -124,7 +126,7 @@
             if (response.status === 200) {
                 tg.close();
             } else {
-                alert("Ошибка");
+                alert(`Ошибка ${response.status}`);
                 tg.MainButton.enable()
             }
 
