@@ -40,14 +40,14 @@
             <label style="margin-top:23%" for="active">Active</label>
           </div>
           <?php
-          if ($employee[5] < access($connection)){
+          //if ($employee[5] < access($connection)){
           ?>
           <div class="mx-auto" style="margin-top:15px">          
             <button type="submit" class="btn btn-primary" name="button-save">Сохранить изменения</button>
           </div>
         </form>
 <?php
-}
+//}
 }
 ?>
         

@@ -13,17 +13,17 @@
     if(!empty($_SESSION['auth'])) {
         $query = "SELECT phone, fio, profession, team FROM users WHERE (phone = '".$_SESSION['auth']."' OR role <=".access($connection).")";
         if (isset($_GET['filter-post']) && $_GET['filter-post']!='Все'){
-            $query .= " AND post = '".$_GET['filter-post']."'";
+            $query .= " AND '".$_GET['filter-post']."' = profession";
         }
         if (isset($_GET['filter-team']) && $_GET['filter-team']!='Все'){
-            $query .= " AND '".$_GET['filter-team']."' = any(team)";
+            $query .= " AND '".$_GET['filter-team']."' = team";
         }
-        if (isset($_GET['active-check']) && $_GET['active-check']=='Y'){
-            $query .= " AND status != ''";
-        }
-        else{
-            $query .= " AND status != false";
-        }
+        // if (isset($_GET['active-check']) && $_GET['active-check'] == 'true'){
+        //     $query .=  " AND status == false";
+        // } 
+        // else{
+        //     $query .= " AND status != true";
+        // }
         if (isset($_GET['search']) && $_GET['search']!=''){                    
             $search=trim(pg_escape_string($_GET['search'])); 
             $search= mb_ucfirst($search);             

@@ -104,86 +104,93 @@ if (isset($_GET['Back']))
 //.................Подгрузка ежедневных отчетов..................
 if (isset($_POST['first']) && isset($_POST['last'])){
   $tele = $_POST['tel'];
-  $sql = "SELECT tasks, fact, hours, date, worked FROM reports, personals WHERE number_phone='".$_POST['tel']."' AND date BETWEEN '".$_POST['first']."' AND '".$_POST['last']."' AND reports.chat_id=personals.chat_id";
+  $sql = "SELECT plan, fact, hours, date FROM tasks, users WHERE phone='".$_POST['tel']."' AND date BETWEEN '".$_POST['first']."' AND '".$_POST['last']."' AND tasks.chat_id=users.chat_id";
   $rs = pg_query($connection, $sql) or die("wait what\n");
   while ($row = pg_fetch_array($rs)) {
-	if ($row[4] == 'S'){
+    if ($row[0] != '') {      
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', 'selected');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', '');";
+        $worked = 'background-color: red';
+          if ($row[1] != ''){
+            $worked = 'background-color: lime';
+            echo "$(\".air-datepicker-cell[day='".$row[3]."']\").append(\"<div class='circle plan'></div>\");";
+          }
+        }
+      elseif ($row[1] != ''){
+        $worked = 'background-color: lime';
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', 'selected');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', '');";
+        }
+        else{
+          $worked = 'background-color: red';
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', '');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', 'selected');";
+        }
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").append(\"<div class='circle' style='".$worked."'></div>\");";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('tel', '".$tele."');";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('plan', `".$row[0]."`);";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('fact', `".$row[1]."`);";
+        echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('hours', '".$row[2]."');";
+    }
+
+
+    $sql5 = "SELECT cause, freedays.from FROM freedays, users WHERE phone='".$_POST['tel']."' and freedays.from = '".$_POST['first']."' AND freedays.chat_id=users.chat_id";
+    $rs5 = pg_query($connection, $sql5) or die("wait what\n");
+    while ($row5 = pg_fetch_array($rs5)) {
+	if ($row[0] == 'К врачу'){
       $worked = 'background-color: black';
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', 'selected');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('sick', 'selected');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('vacation', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('takeaday', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('work', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('nowork', '');";
 	}
-	elseif ($row[4] == 'V'){
+	elseif ($row[0] == 'V'){
       $worked = 'background-color: #cece00';
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', 'selected');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('sick', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('vacation', 'selected');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('takeaday', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('work', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('nowork', '');";
 	}
-	elseif ($row[4] == 'D'){
+	elseif ($row[0] == 'Взять день'){
       $worked = 'background-color: darkgray';
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', 'selected');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('sick', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('vacation', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('takeaday', 'selected');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('work', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('nowork', '');";
 	}
-	elseif ($row[4] == 'N') {
+	elseif ($row[0] == 'N') {
       $worked = 'background-color: red';
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', 'selected');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('sick', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('vacation', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('takeaday', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('work', '');";
+	  echo "$(\".air-datepicker-cell[day='".$row[1]."']\").attr('nowork', 'selected');";
 	}
-	elseif ($row[0] != ''){
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', 'selected');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', '');";
-	  $worked = 'background-color: red';
-	  if ($row[1] != ''){
-		$worked = 'background-color: lime';
-		echo "$(\".air-datepicker-cell[day='".$row[3]."']\").append(\"<div class='circle plan'></div>\");";
-    }
-    }
-	elseif ($row[1] != ''){
-	  $worked = 'background-color: lime';
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', 'selected');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', '');";
-    }
-    else{
-      $worked = 'background-color: red';
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('sick', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('vacation', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('takeaday', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('work', '');";
-	  echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('nowork', 'selected');";
-    }
-	echo "$(\".air-datepicker-cell[day='".$row[3]."']\").append(\"<div class='circle' style='".$worked."'></div>\");";
-	echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('tel', '".$tele."');";
-    echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('plan', `".$row[0]."`);";
-    echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('fact', `".$row[1]."`);";
-    echo "$(\".air-datepicker-cell[day='".$row[3]."']\").attr('hours', '".$row[2]."');";
+
 }
 }
 
 //.......Команды..............
 if (isset($_POST['teams']) && !empty($_SESSION['auth']) && access($connection) == 2) {
-  $sql = "SELECT team FROM users";
+  $sql = "SELECT DISTINCT team FROM users";
   $res = pg_query($connection, $sql) or die("wait what\n");
   while ($combobox = pg_fetch_array($res)) {
-    echo  "document.getElementById('teams').innerHTML += `
-    <div class='row' style='width:100%; margin:0; padding-bottom:3px; padding-top:3px;' title=\"".htmlspecialchars($combobox[0])."\">
+    echo  "
+    <div class='row' style='width:100%; margin:0; padding-bottom:3px; padding-top:3px;' title=\"".htmlspecialchars(trim($combobox[0]))."\">
       <div class='col' style='width:45%; flex:auto;padding:0;'>
-        <input type='text' class='form-control' value=\"".htmlspecialchars($combobox[0])."\">
+        <input type='text' class='form-control' value=\"".htmlspecialchars(trim($combobox[0]))."\">
       </div>
       <div class='col' style='width:30%; flex:auto; padding:0; padding-left:5px;'>
         <button id='team_rename' type='button' class='btn btn-primary' style='width:100%; height:100%; overflow: hidden;'>Изменить</button>
@@ -192,20 +199,8 @@ if (isset($_POST['teams']) && !empty($_SESSION['auth']) && access($connection) =
         <button id='team_delete' type='button' class='btn btn-danger' style='width:100%; height:100%; overflow: hidden;'>Удалить</button>
       </div>
     </div>
-    `;";
+    ";
   };
-  echo "document.getElementById('teams').innerHTML += `
-  <div class='row align-items-center' style='width:100%; margin:0; padding-bottom:10px; padding-top:12px;'>
-    <div class='col-1' flex:auto;padding:0;'>
-    </div>
-    <div class='col-6' flex:auto;padding:0;'>
-      <input type='text' class='form-control'>
-    </div>
-    <div class='col-5' flex:auto;padding:0;'>
-      <button id='team_add' type='button' class='btn btn-primary' style='width:120px;'>Добавить</button>
-    </div>
-  </div>
-  `;";
 }
 
 
@@ -213,7 +208,7 @@ if (isset($_POST['teams']) && !empty($_SESSION['auth']) && access($connection) =
 if (isset($_POST['team_rename']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $title = pg_escape_string($_POST['team_title']);
   $rename = trim(pg_escape_string($_POST['team_rename']));
-  $sql = "SELECT team FROM team WHERE team = '".$rename."'";
+  $sql = "SELECT DISTINCT team FROM users WHERE team = '".$rename."'";
   $res = pg_query($connection, $sql) or die("wait what\n");
   $row = pg_fetch_row($res);
   if ($title == $rename) {
@@ -221,7 +216,7 @@ if (isset($_POST['team_rename']) && !empty($_SESSION['auth']) && access($connect
   } else if ($row[0] == $rename || $rename == '' || $rename == 'Без команды') {
     echo ("notification('Название занято','rgba(255, 0, 0, 0.7)');");
   } else {
-    $sql = "UPDATE team SET team = '".$rename."' WHERE team = '".$title."'; UPDATE personals SET team = array_replace(team, '".$title."', '".$rename."');";
+    $sql = "UPDATE users SET team = '".$rename."' WHERE team = '".$title."'; UPDATE users SET team = array_replace(team, '".$title."', '".$rename."');";
     pg_query($connection, $sql) or die("wait what\n");
     echo ("notification('Новое название команды \'".$rename."\'','rgba(53, 209, 29, 0.7)');");
     echo ("table_update();");
@@ -238,7 +233,7 @@ if (isset($_POST['team_add']) && !empty($_SESSION['auth']) && access($connection
   if ($row[0] != '' || $title == '' || $title == 'Без команды') {
     echo ("notification('Название занято','rgba(255, 0, 0, 0.7)');");
   } else {
-    $sql = "INSERT INTO team (team) VALUES ('".$title."')";
+    $sql = "INSERT INTO users (team) VALUES ('".$title."')";
     pg_query($connection, $sql) or die("wait what\n");
     echo ("notification('Команда создана','rgba(53, 209, 29, 0.7)');");
     echo ("teams_update();");
@@ -249,7 +244,7 @@ if (isset($_POST['team_add']) && !empty($_SESSION['auth']) && access($connection
 //............Удалить команду.............
 if (isset($_POST['team_delete']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $title = pg_escape_string($_POST['team_delete']);
-  $sql = "SELECT count(number_phone) FROM personals WHERE '".$title."' = any(team) AND active = 'Y' AND 2 > array_length(team, 1)";
+  $sql = "SELECT count(phone) FROM users WHERE '".$title."' = any(team) AND status = true AND 2 > array_length(team, 1)";
   $res = pg_query($connection, $sql) or die("wait what\n");
   $row = pg_fetch_row($res);
   if ($row[0] > 0) {
@@ -269,7 +264,7 @@ if (isset($_POST['team_delete']) && !empty($_SESSION['auth']) && access($connect
     </div>
     `;";
   } else {
-    $sql = "DELETE FROM team WHERE team = '".$title."'";
+    $sql = "DELETE FROM users WHERE team = '".$title."'";
     pg_query($connection, $sql) or die("wait what\n");
     echo ("notification('Команда удалена','rgba(53, 209, 29, 0.7)');");
     echo ("teams_update();");
@@ -280,15 +275,15 @@ if (isset($_POST['team_delete']) && !empty($_SESSION['auth']) && access($connect
 if (isset($_POST['team_change']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $travel_arr = $_POST['team_change'];
   $title = $_POST['title'];
-  $sql = "DELETE FROM team WHERE team = '".$title."';";
+  $sql = "DELETE FROM users WHERE team = '".$title."';";
   foreach ($travel_arr as $key => $value) {
     if ($value == 'deleteteamohno') {
-      $sql = $sql."UPDATE personals SET team = array_remove(team, '".$title."'); ";
+      $sql = $sql."UPDATE users SET team = array_remove(team, '".$title."'); ";
     } else {
       if ($value == 'Оставить без команды') {
         $value = 'Без команды';
       };
-      $sql = $sql."UPDATE personals SET team = '{".$value."}' WHERE number_phone = '".$key."'; ";
+      $sql = $sql."UPDATE users SET team = '{".$value."}' WHERE phone = '".$key."'; ";
     }
   }
   pg_query($connection, $sql) or die("wait what\n");
@@ -300,7 +295,7 @@ if (isset($_POST['team_change']) && !empty($_SESSION['auth']) && access($connect
 //............Перенести в другие команды..............
 if (isset($_POST['team_traveling']) && !empty($_SESSION['auth']) && access($connection) == 2) {
   $title = pg_escape_string($_POST['team_traveling']);
-  $sql = "SELECT team FROM team WHERE team != '".$title."'";
+  $sql = "SELECT DISTINCT team FROM users WHERE team != '".$title."'";
   $res = pg_query($connection, $sql) or die("wait what\n");
   $text = '';
   while ($combobox = pg_fetch_array($res)) {
@@ -321,7 +316,7 @@ if (isset($_POST['team_traveling']) && !empty($_SESSION['auth']) && access($conn
       </div>
     </div>
     `;";
-  $sql = "SELECT full_name, post, number_phone FROM personals WHERE '".$title."' = any(team) AND active = 'Y' AND 2 > array_length(team, 1)";
+  $sql = "SELECT fio, profession, phone FROM users WHERE '".$title."' = any(team) AND status = true AND 2 > array_length(team, 1)";
   $res = pg_query($connection, $sql) or die("wait what\n");
   while ($row = pg_fetch_array($res)) {
     echo "document.getElementById('teams').innerHTML += `
@@ -345,7 +340,7 @@ if (isset($_POST['team_traveling']) && !empty($_SESSION['auth']) && access($conn
       </div>
     </div>
     `;";
-  $sql = "SELECT number_phone FROM personals WHERE '".$title."' = any(team) AND active = 'Y' AND 1 < array_length(team, 1)";
+  $sql = "SELECT phone FROM users WHERE '".$title."' = any(team) AND status = true AND 1 < array_length(team, 1)";
   $res = pg_query($connection, $sql) or die("wait what\n");
   while ($row = pg_fetch_array($res)) {
     echo "travel_arr[".$row[0]."] = 'deleteteamohno';";
@@ -355,7 +350,7 @@ if (isset($_POST['team_traveling']) && !empty($_SESSION['auth']) && access($conn
 //.......Изменение Календаря..............
 
 if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' && !empty($_POST['checkdaily'])) {
-    $chatid = "SELECT chat_id FROM personals WHERE number_phone='".$_POST['number']."'";
+    $chatid = "SELECT chat_id FROM users WHERE phone='".$_POST['number']."'";
 	$chatid = pg_query($connection, $chatid);
 	$chatid = pg_fetch_assoc($chatid);
 	
@@ -374,14 +369,14 @@ if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED
 	// if (!isset($_POST['planedit'])) {
 		// pg_query($connection, "UPDATE public.reports SET tasks='".$_POST['planedit']."', fact='".$_POST['factedit']."', hours='".$_POST['hoursedit']."', worked='".$_POST['stats']."' WHERE chat_id='".$chatid['chat_id']."' AND date='".$_POST['day']."'");
 	// }
-	pg_query($connection, "UPDATE public.reports SET tasks=$plan, fact=$fact, hours='".$_POST['hoursedit']."', worked='".$_POST['stats']."' WHERE chat_id='".$chatid['chat_id']."' AND date='".$_POST['day']."'");
+	pg_query($connection, "UPDATE public.freedays, public.tasks SET plan=$plan, fact=$fact, hours='".$_POST['hoursedit']."', tasks.cause='".$_POST['stats']."' WHERE chat_id='".$chatid['chat_id']."' AND tasks.date='".$_POST['day']."'");
 	echo "<script>$('#report').show();calendar_update();var div = $( '#DailyReport' );div.remove();$('.air-datepicker-cell').removeClass('-selected-');</script>";
 }
 
 //.......Команды (редактирование)..............
 if (isset($_POST['edit_team']) && !empty($_SESSION['auth']) && (access($connection) == 1 || access($connection) == 2)) {
   $checked_arr=explode(', ', $_POST['edit_team']);
-  $sql = "SELECT * FROM team";
+  $sql = "SELECT DISTINCT team FROM users";
   $res = pg_query($connection, $sql) or die("wait what\n");
   $text = "<div class='row gy-2 gx-3 align-items-center text-center'>";
   while ($combobox = pg_fetch_array($res)) {

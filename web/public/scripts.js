@@ -213,7 +213,7 @@ function calendar_update(){
       }
     });
 }
-
+//
 //.............Открытие ежедневного отчета................
 $(document).on('click', '.air-datepicker-cell.-day-:not(.-other-month-)', function () {
 	  $('#Daily').append(`<div class="modal" id="DailyReport" style="display: contents;" aria-hidden="true" data-backdrop=”false”>
@@ -236,9 +236,9 @@ $(document).on('click', '.air-datepicker-cell.-day-:not(.-other-month-)', functi
 				<select style='width: auto;' name='stats'>
 				<option value="Y" ${$(this).attr('work') ?? ''}>Работал</option>
 				<option value="N" ${$(this).attr('nowork') ?? ''}>Не работал</option>
-				<option value="S" ${$(this).attr('sick') ?? ''}>Больничный</option>
+				<option value="К врачу" >Больничный ${$(this).attr('sick') ?? ''}</option>
 				<option value="V" ${$(this).attr('vacation') ?? ''}>Отпуск</option>
-				<option value="D" ${$(this).attr('takeaday') ?? ''}>Взял день</option>
+				<option value="Взять день" ${$(this).attr('takeaday') ?? ''}>Взял день</option>
 				</select>
 			  </div>
 				<button type="submit" name="submit" style="margin-left: 5%;width: 90%;margin-top: 1%;">Изменить</button><br>
@@ -370,7 +370,7 @@ $(document).on('click', '#team_rename', function() {
     url: 'ajax.php',
     data: {team_title: $(this).closest('.row').attr('title'), team_rename: $(this).closest('.row').find('input').val()},
     success: function (data) {
-      eval(data);
+      document.getElementById('teams').innerHTML = data;
     }
   });
 })

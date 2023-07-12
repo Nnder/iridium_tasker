@@ -74,7 +74,7 @@ include 'php.php';
         <input type="text" class="form-control filters" id="search" name="search" style="width:100%;" placeholder="Поиск">
       </div>
       <div class="col-auto active" style="display:inline-block">
-        <input type="checkbox" class="form-check-input filters" id="active-check" name="active-check" value="Y">
+        <input type="checkbox" class="form-check-input filters" id="active-check" name="active-check" value="true">
         <label for="active-check">Показывать неактивных</label>
       </div>
       </div>
@@ -101,7 +101,8 @@ include 'php.php';
                 <select class="form-select filter-select filters" name="filter-post" id="filter-post">
                   <option value="Все">Все</option>
                   <?php
-                    $sql = "SELECT profession FROM users WHERE profession != '' AND role<".access($connection)." AND status != 'false' OR phone = '".$_SESSION['auth']."' GROUP BY profession";
+                    $sql = "SELECT DISTINCT profession FROM users";
+                    //$sql = "SELECT profession FROM users WHERE profession != '' AND role<".access($connection)." AND status != 'false' OR phone = '".$_SESSION['auth']."' GROUP BY profession";
                     $res = pg_query($connection, $sql) or die("wait what\n");
                     while ($combobox = pg_fetch_array($res)) {
                     ?>

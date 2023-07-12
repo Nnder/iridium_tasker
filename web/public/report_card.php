@@ -8,7 +8,7 @@ if (!empty($_SESSION['auth']) && isset($_GET['date'])) {
     $start = $_GET['date'];
     $end = date("Y-m-t", strtotime($start));
     $objExcel = new PHPExcel();
-    $sql = "SELECT date FROM reports WHERE date BETWEEN '".$start."' AND '".$end."' GROUP BY date ORDER BY date ASC";
+    $sql = "SELECT date FROM tasks WHERE date BETWEEN '".$start."' AND '".$end."' GROUP BY date ORDER BY date ASC";
     $rs = pg_query($connection, $sql) or die("wait what\n");
     $dates = array();
     $objExcel->setActiveSheetIndex(0);
@@ -58,45 +58,52 @@ if (!empty($_SESSION['auth']) && isset($_GET['date'])) {
     };
     $objExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, 'ИТОГ');
 
-    $sql1 = "SELECT full_name, array_to_json(ARRAY_AGG(date)), array_to_json(ARRAY_AGG(worked)), array_to_json(ARRAY_AGG(hours)) FROM reports, personals WHERE reports.chat_id = personals.chat_id AND date BETWEEN '".$start."' AND '".$end."' GROUP BY full_name";
+    $sql1 = "SELECT fio, array_to_json(ARRAY_AGG(date)), array_to_json(ARRAY_AGG(hours)), array_to_json(ARRAY_AGG(cause)) FROM tasks, users, freedays WHERE tasks.chat_id = users.chat_id AND date BETWEEN '".$start."' AND '".$end."'  GROUP BY fio";
     $rs1 = pg_query($connection, $sql1) or die("wait what\n");
     $j = 2;
     while ($row1 = pg_fetch_array($rs1)) {
         $poditog = true;
-        $i = 1;
+        $i = 1;        
         $arr_date = json_decode($row1[1]);
-        $arr_worked = json_decode($row1[2]);
-        $arr_hours = json_decode($row1[3]);
+        $arr_hours = json_decode($row1[2]);
+        $arr_worked = json_decode($row1[3]);        
         $objExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $j, $row1[0]);
         foreach ($dates as $d) {
-            if ($poditog && date('d', strtotime($d))>15){
+            if ($poditog && date('d', strtotime($d)) > 15) {
                 $poditog = false;
-                $objExcel->getActiveSheet()->setCellValueByColumnAndRow($i, $j, '=SUM(B'.$j.':'.PHPExcel_Cell::stringFromColumnIndex($i-1).$j.')');
+                $objExcel->getActiveSheet()->setCellValueByColumnAndRow($i, $j, '=SUM(B'.($j + 1).':'.PHPExcel_Cell::stringFromColumnIndex($i - 1).$j.')');
                 $objExcel->getActiveSheet()->getStyleByColumnAndRow($i, $j)->applyFromArray($grey);
                 $i++;
-            }
-            $text = $arr_hours[array_search($d, $arr_date)];
-            if (array_search($d, $arr_date)===false){
-                $text = '';
-            } else if ($arr_worked[array_search($d, $arr_date)] == 'S') {
-                $text = 'Б';
-                $objExcel->getActiveSheet()->getStyleByColumnAndRow($i, $j)->applyFromArray($grey);
-            } else if ($arr_worked[array_search($d, $arr_date)] == 'V') {
-                $text = 'ОТ';
-                $objExcel->getActiveSheet()->getStyleByColumnAndRow($i, $j)->applyFromArray($grey);
-            } else if ($arr_worked[array_search($d, $arr_date)] == 'D') {
-                $text = 'ДО';
-                $objExcel->getActiveSheet()->getStyleByColumnAndRow($i, $j)->applyFromArray($grey);
-            } else if ($arr_worked[array_search($d, $arr_date)] == 'N') {
-                $text = '0';
-            };
-            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($i, $j, $text);
-            $i++;
+            }            
+            $text = explode(':', $arr_hours[array_search($d, $arr_date)]);
+            $text[0] = (float)$text[0];
+            $text[1] = (float)$text[1] / 60;
+            $text = $text[0] + round($text[1], 2);
+                if (array_search($d, $arr_date) === false) {
+                    $text = '';
+                 } else if ($arr_worked[array_search($d, $arr_date)] == 'К врачу') {
+                     $text = 'Б';
+                     $objExcel->getActiveSheet()->getStyleByColumnAndRow($i, $j)->applyFromArray($grey);
+                 } else if ($arr_worked[array_search($d, $arr_date)] == 'V') {
+                     $text = 'ОТ';
+                     $objExcel->getActiveSheet()->getStyleByColumnAndRow($i, $j)->applyFromArray($grey);
+                 } else if ($arr_worked[array_search($d, $arr_date)] == 'D') {
+                     $text = 'ДО';
+                     $objExcel->getActiveSheet()->getStyleByColumnAndRow($i, $j)->applyFromArray($grey);
+                 } else if ($arr_worked[array_search($d, $arr_date)] == 'N') {
+                     $text = '0';
+                 };            
+                $objExcel->getActiveSheet()->setCellValueByColumnAndRow($i, $j, $text);
+                $i++;     
         }
         $objExcel->getActiveSheet()->setCellValueByColumnAndRow($i, $j, '=SUM('.PHPExcel_Cell::stringFromColumnIndex($poditog_col).$j.':'.PHPExcel_Cell::stringFromColumnIndex($i-1).$j.')');
         $objExcel->getActiveSheet()->getStyleByColumnAndRow($i, $j)->applyFromArray($grey);
         $j++;
-    };
+    };  
+    
+    //$sql3 = 'select distinct freedays.chat_id, freedays.cause, freedays.from, freedays.to, '.$arr_date.' FROM freedays where '.$arr_date.' between freedays.from and freedays.to and freedays.chat_id = ';
+
+
     for ($col = 'A'; $col != $objExcel->getActiveSheet()->getHighestDataColumn(); $col++) {
         $objExcel->getActiveSheet()->getColumnDimension($col)->setWidth('6');
     };
