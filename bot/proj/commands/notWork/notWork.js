@@ -12,15 +12,17 @@ const {where, Op} = require("sequelize");
 async function notWork(msg, task){
     const chat_id = msg.chat.id;
 
-    const currentDate = new Date();
-    currentDate.setHours(0,0,0,0);
+    // const currentDate = new Date();
+    // currentDate.setHours(0,0,0,0);
+    //
+    // const taskDate = new Date(taks.date)
+    // taskDate.setHours(0,0,0,0);
+    //
+    // if(taskDate.toString() != currentDate.toString()){
+    //
+    // }
 
-    const taskDate = new Date(taks.date)
-    taskDate.setHours(0,0,0,0);
-
-    if(taskDate.toString() != currentDate.toString()){
-        await task.destroy();
-    }
+    await task.destroy();
 
 
 
