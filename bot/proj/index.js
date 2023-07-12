@@ -329,7 +329,7 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
                 break;
             // Not Work Debt
-            case "NWP":
+            case "NWD":
                 bot.sendMessage(chat_id, `Не работал ${date}` );
                 // await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id});
                 notWork(msg, await getTaskForToday(chat_id, date))
