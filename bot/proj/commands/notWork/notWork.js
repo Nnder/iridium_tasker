@@ -12,7 +12,18 @@ const {where, Op} = require("sequelize");
 async function notWork(msg, task){
     const chat_id = msg.chat.id;
 
-    await task.destroy();
+    const currentDate = new Date();
+    currentDate.setHours(0,0,0,0);
+
+    const taskDate = new Date(taks.date)
+    taskDate.setHours(0,0,0,0);
+
+    if(taskDate.toString() != currentDate.toString()){
+        await task.destroy();
+    }
+
+
+
 
     const messageWithKeyboard = await bot.sendMessage(chat_id, "Заполните форму");
     const {message_id} = messageWithKeyboard;
