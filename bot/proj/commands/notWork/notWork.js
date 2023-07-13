@@ -22,7 +22,7 @@ async function notWork(msg, task){
     //
     // }
 
-    await task.destroy();
+    // await task.destroy();
 
 
 

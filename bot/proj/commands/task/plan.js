@@ -16,12 +16,12 @@ async function plan(msg, match, date = setUTC(new Date())) {
             "plan": msg.text
         })
 
-        bot.sendMessage(chat_id, "План успешно записан");
+        await bot.sendMessage(chat_id, "План успешно записан");
 
 
 
     } else {
-        bot.sendMessage(chat_id, "План не записан");
+        await bot.sendMessage(chat_id, "План не записан");
     }
 
 }

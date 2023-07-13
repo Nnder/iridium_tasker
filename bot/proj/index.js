@@ -18,25 +18,31 @@ console.log('Бот запущен');
 const {canSend} = require("./commands/user/canSend");
 
 const {start} = require('./commands/start');
-bot.onText(/\/start/, (msg, match) => {
+bot.onText(/\/start\b/, (msg, match) => {
     start(msg, match);
 });
 
 const {info} = require('./commands/user/info');
-bot.onText(/\/info/, (msg, match) => {
-    canSend(msg.chat.id).then((res)=> {
-        if (res){
-            info(msg, match);
-        } else {
-            bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
-        }
+bot.onText(/\/info\b/, async (msg, match) => {
+    if (await canSend(msg.chat.id)){
+        info(msg, match);
+    } else {
+        bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+    }
+});
 
-    })
+bot.onText(/\/weekend\b/, async (msg, match) => {
+    if (await canSend(msg.chat.id)){
+
+        notWork(msg, match);
+
+    } else {
+        bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+    }
 });
 
 const {getFullPlan} = require("./commands/task/getFullPlan");
-bot.onText(/\/week/, (msg, match) => {
-
+bot.onText(/\/week\b/, (msg, match) => {
     canSend(msg.chat.id).then((res)=>{
         if (res){
             let currentDay = setUTC(new Date()).getDay(); //(0-6)
@@ -55,10 +61,6 @@ bot.onText(/\/week/, (msg, match) => {
         }
 
     })
-
-
-
-
 });
 
 
@@ -68,7 +70,7 @@ const {plan, startPlan} = require('./commands/task/plan');
 const {notWork, canWorkToday} = require("./commands/notWork/notWork");
 const {debt} = require("./commands/task/debt");
 
-bot.onText(/\/plan/, async (msg, match) => {
+bot.onText(/\/plan\b/, async (msg, match) => {
 
         if (await canSend(msg.chat.id)) {
 
@@ -93,7 +95,7 @@ bot.onText(/\/plan/, async (msg, match) => {
 
 const {fact, startFact} = require('./commands/task/fact');
 
-bot.onText(/\/fact/, async (msg, match) => {
+bot.onText(/\/fact\b/, async (msg, match) => {
 
     if (await canSend(msg.chat.id)) {
 
@@ -135,6 +137,7 @@ app.post('/web-data', async (req, res) => {
         const {cause, msg, from, to, uid, mid} = req.body
 
         await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id: uid, message_id: mid})
+        await bot.sendMessage(uid, "Запрос направлен СТО");
 
         const user = await users.findOne({where:{ chat_id: uid}})
         const sto = await users.findOne({ where: {role: 3}})
@@ -239,13 +242,11 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
             case "Enter Plan":
                 bot.sendMessage(chat_id, "Введите план");
 
-
-
                 bot.onText(regexp , async (msg)=>{
-                    if (msg.chat.id == chat_id) {
+                    if (msg.chat.id === chat_id) {
                         await plan(msg, match)
+                        await debt(msg.chat.id);
                         bot.removeTextListener(regexp);
-                        await debt(msg.chat.id, match);
                     } else {
                         console.log(`${msg.chat.id} - ${chat_id}`);
                     }
@@ -262,7 +263,7 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 bot.sendMessage(chat_id, "Введите факт")
 
                 bot.onText(regexp, (msg) => {
-                    if (msg.chat.id == chat_id) {
+                    if (msg.chat.id === chat_id) {
                         fact(msg, match)
                         bot.removeTextListener(regexp);
                     }
@@ -290,7 +291,7 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 console.log(new Date(date));
 
                 bot.onText(regexp, (msg)=>{
-                    if (msg.chat.id == chat_id) {
+                    if (msg.chat.id === chat_id) {
                         plan(msg, match, new Date(date))
                         // bot.sendMessage(chat_id, msg.text);
                         bot.removeTextListener(regexp);
@@ -301,7 +302,9 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
 
                 const timer = setTimeout(async ()=>{
-                    // из-за того что не могу получить по id сообщение пришлось изворачиватся
+                    // из-за того что не могу получить по id сообщение пришлось изворачиваться (просто обернул в try catch)
+                    // вылетает ошибка при попытке изменить клавиатуру на такую же пустую клавиатуру
+                    // проблему с сообщением как решить понял, но времени на переделку не было
                     try {
                         const {message_id} = messageWithKeyboard;
                         await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
@@ -321,7 +324,7 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
                 bot.sendMessage(chat_id, `Введите факт за ${date}`)
                 bot.onText(regexp, (msg) => {
-                    if (msg.chat.id == chat_id) {
+                    if (msg.chat.id === chat_id) {
                         fact(msg, match, date)
                         bot.removeTextListener(regexp);
                     }
@@ -374,10 +377,10 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
                 let text = `Уведомление!\n${freeUser.fio.trim()}\nКоманда: ${freeUser.team.trim()}\nПричина: ${free.cause}\nДата: ${free.from} - ${free.to}\n${free.message}`
 
-                if (canWorkToday(free.from)){
-                    await bot.sendMessage(id, "Сегодня вы не работаете")
-                    await freeUser.update({status: false});
-                }
+                // if (canWorkToday(free.from)){
+                //     await bot.sendMessage(id, "Сегодня вы не работаете")
+                //     await freeUser.update({status: false});
+                // }
 
 
                 // проверка на промежуток времени в задаче
@@ -431,7 +434,7 @@ async function startCron(){
             if (exist !== null && exist?.plan) {
 
                 bot.sendMessage(user.chat_id, "Ваш план \n"+exist?.plan);
-                debt(chat_id, match);
+                debt(user.chat_id, match);
 
             } else {
                 startPlan(user.chat_id)

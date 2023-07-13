@@ -36,7 +36,7 @@ async function startFact(chat_id) {
     };
 
 
-    let messageWithKeyboard = await bot.sendMessage(chat_id, "Что сделал за сегодня?", options);
+    let messageWithKeyboard = await bot.sendMessage(chat_id, "Добрый вечер! Что сделал за сегодня?", options);
 
     const timer = setTimeout(async ()=>{
         // из-за того что не могу получить по id сообщение пришлось изворачиватся
