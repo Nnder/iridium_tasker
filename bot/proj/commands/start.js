@@ -30,9 +30,9 @@ async function start(msg, match){
 
 
     if (await isIdUnique(chatId)) {
-        bot.sendMessage(chatId, 'Вы уже зарегистрированы', remove)
+        await bot.sendMessage(chatId, 'Вы уже зарегистрированы', remove)
     } else {
-        bot.sendMessage(chatId, 'Вас нет в списке, отправьте номер ', reqPhone)
+        await bot.sendMessage(chatId, 'Вас нет в списке, отправьте номер ', reqPhone)
 
         await bot.once('contact', async (msg) => {
             if (chatId === msg.chat.id){

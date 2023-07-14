@@ -1,7 +1,7 @@
-// позволяет взять больнычный, отпуск, неоплычиваемый отпуск, поход к доктору
+// позволяет взять больничный, отпуск, неоплачиваемый отпуск, поход к доктору
 // принимает дату(от, до), тип (больничный, отпуск..), сообщение и состояние(принято/отклонено)
 // на нем формирует сообщение
-// отпровляет всем админам(role) сформированное сообщение с 2 кнопками (принять/отклонить)
+// отправляет всем админам(role) сформированное сообщение с 2 кнопками (принять/отклонить)
 
 
 const {bot,webAppUrl} = require("../../index");
@@ -15,7 +15,7 @@ async function notWork(msg, task){
     // const currentDate = new Date();
     // currentDate.setHours(0,0,0,0);
     //
-    // const taskDate = new Date(taks.date)
+    // const taskDate = new Date(task.date)
     // taskDate.setHours(0,0,0,0);
     //
     // if(taskDate.toString() != currentDate.toString()){
@@ -27,18 +27,19 @@ async function notWork(msg, task){
 
 
 
-    const messageWithKeyboard = await bot.sendMessage(chat_id, "Заполните форму");
-    const {message_id} = messageWithKeyboard;
+    const {message_id} = await bot.sendMessage(chat_id, "Заполните форму");
 
     const webAppKeyboard = {
         reply_markup: {
+            disable_notification: true,
             inline_keyboard: [
                 [{text:"Форма", web_app: {url: `${webAppUrl}/free.html?user=${chat_id}&mid=${message_id}`}}]
             ]
         }
     }
 
-    const sentMessage = await bot.editMessageReplyMarkup(webAppKeyboard.reply_markup, {chat_id, message_id})
+    await bot.editMessageReplyMarkup(webAppKeyboard.reply_markup, {chat_id, message_id})
+
 
     const timer = setTimeout(()=>{
         try {
@@ -59,13 +60,13 @@ async function canWorkToday(from){
     const date = new Date(from)
     date.setHours(0,0,0,0);
 
-    if (today.toString() == date.toString()){
+    if (today.toString() === date.toString()){
         console.log(`Они равны ${today.toString()} ${date.toString()}`)
     } else {
         console.log(`Они не равны ${today.toString()} ${date.toString()}`)
     }
 
-    return today.toString() == date.toString()
+    return today.toString() === date.toString()
 }
 
 module.exports = {

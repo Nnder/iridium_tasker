@@ -22,7 +22,7 @@ async function getFullPlan(msg ,start = setUTC(new Date(0)), end = setUTC(new Da
     let text = `Ваши планы/факты с ${start} по ${end}\n${slash}\n`;
 
     if (task.length === 0){
-        bot.sendMessage(chat_id, "У вас нету задач");
+        await bot.sendMessage(chat_id, "У вас нету задач");
     }
 
     task.map(async (task)=>{

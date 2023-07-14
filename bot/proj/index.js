@@ -2,7 +2,6 @@ require('dotenv').config({ path: '.env' });
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, {polling: {interval: 300, autoStart: true}});
-const sequelize = require('./database/db');
 const {users,tasks,freeDays} = require('./database/models');
 const webAppUrl = process.env.WEB_APP_URL;
 const CronJob = require('cron').CronJob;
@@ -18,49 +17,45 @@ console.log('Бот запущен');
 const {canSend} = require("./commands/user/canSend");
 
 const {start} = require('./commands/start');
-bot.onText(/\/start\b/, (msg, match) => {
-    start(msg, match);
+bot.onText(/\/start\b/, async (msg, match) => {
+    await start(msg, match);
 });
 
 const {info} = require('./commands/user/info');
 bot.onText(/\/info\b/, async (msg, match) => {
     if (await canSend(msg.chat.id)){
-        info(msg, match);
+        await info(msg, match);
     } else {
-        bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+        await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
     }
 });
 
 bot.onText(/\/weekend\b/, async (msg, match) => {
     if (await canSend(msg.chat.id)){
-
-        notWork(msg, match);
-
+        await notWork(msg, match);
     } else {
-        bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+        await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
     }
 });
 
 const {getFullPlan} = require("./commands/task/getFullPlan");
-bot.onText(/\/week\b/, (msg, match) => {
-    canSend(msg.chat.id).then((res)=>{
-        if (res){
-            let currentDay = setUTC(new Date()).getDay(); //(0-6)
+bot.onText(/\/week\b/, async (msg, match) => {
+    if (await canSend(msg.chat.id)){
+        let currentDay = setUTC(new Date()).getDay(); //(0-6)
 
-            if (currentDay >= 1){
-                let start = setUTC(new Date())
-                start.setDate(start.getDate() - (currentDay - 1))
-                getFullPlan(msg, start)
-            } else {
-                let start = setUTC(new Date())
-                start.setDate(start.getDate() - (currentDay - 1))
-                getFullPlan(msg, start)
-            }
+        if (currentDay >= 1){
+            let start = setUTC(new Date())
+            start.setDate(start.getDate() - (currentDay - 1))
+            await getFullPlan(msg, start)
         } else {
-            bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+            let start = setUTC(new Date())
+            start.setDate(start.getDate() - (currentDay - 1))
+            await getFullPlan(msg, start)
         }
+    } else {
+        await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+    }
 
-    })
 });
 
 
@@ -79,14 +74,14 @@ bot.onText(/\/plan\b/, async (msg, match) => {
 
             if (exist !== null && exist?.plan) {
 
-                bot.sendMessage(chat_id, "Ваш план \n" + exist?.plan);
-                debt(msg.chat.id, match);
+                await bot.sendMessage(chat_id, "Ваш план \n" + exist?.plan);
+                await debt(msg.chat.id, match);
 
             } else {
-                startPlan(chat_id);
+                await startPlan(chat_id);
             }
         } else {
-            bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+            await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
         }
 
 });
@@ -96,34 +91,25 @@ bot.onText(/\/plan\b/, async (msg, match) => {
 const {fact, startFact} = require('./commands/task/fact');
 
 bot.onText(/\/fact\b/, async (msg, match) => {
-
     if (await canSend(msg.chat.id)) {
-
         const chat_id = msg.chat.id;
         const exist = await getTaskForToday(chat_id, setUTC(new Date()))
         if (exist === null || exist?.plan === null) {
-            bot.sendMessage(chat_id, "Сначала введите план");
+            await bot.sendMessage(chat_id, "Сначала введите план");
         } else if (exist?.fact !== null) {
-
-            bot.sendMessage(chat_id, "Ваш факт \n" + exist?.fact)
-
+            await bot.sendMessage(chat_id, "Ваш факт \n" + exist?.fact)
         } else {
-            startFact(chat_id);
+            await startFact(chat_id);
         }
-
     } else {
-        bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
+        await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду")
     }
 });
-
-
 
 // API
 
 const express = require('express');
 const cors = require('cors');
-
-
 
 const app = express();
 
@@ -200,7 +186,7 @@ app.post('/web-time', async (req, res) => {
         console.log(`${from} ${to}`);
 
 
-        bot.sendMessage(user_id, `Время работы ${from} - ${to}`);
+        await bot.sendMessage(user_id, `Время работы ${from} - ${to}`);
 
 
         return res.status(200).json({});
@@ -224,13 +210,13 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
     const currentDate = setUTC(new Date());
 
     const match = "";
-
-    await bot.answerCallbackQuery(callbackQuery.id)
-    await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
-
-    // в каждую клавиатуру номер таймера
-    //
-
+    
+    try{
+        await bot.answerCallbackQuery(callbackQuery.id, {cache_time: 0});
+    } catch (e) {
+        await bot.sendMessage(chat_id, "Ошибка попробуйте отправить запрос снова");
+    }
+    
 
     // создаем задачу на сегодня
     // если выбрано не работаю то задача удаляется
@@ -238,13 +224,15 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
     const regexp = new RegExp(`.*|${chat_id}`, "gmi");
 
     try {
+        await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+
         switch (type) {
             case "Enter Plan":
-                bot.sendMessage(chat_id, "Введите план");
+                await bot.sendMessage(chat_id, "Введите план");
 
                 bot.onText(regexp , async (msg)=>{
                     if (msg.chat.id === chat_id) {
-                        await plan(msg, match)
+                        await plan(msg)
                         await debt(msg.chat.id);
                         bot.removeTextListener(regexp);
                     } else {
@@ -254,17 +242,17 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 })
 
                 // bot.once("text", async (msg)=>{
-                //     await plan(msg, match)
+                //     await plan(msg)
                 //     // bot.removeTextListener(/\.*/gmi);
                 //     await debt(msg.chat.id, match);
                 // })
                 break;
             case "Enter fact":
-                bot.sendMessage(chat_id, "Введите факт")
+                await bot.sendMessage(chat_id, "Введите факт")
 
-                bot.onText(regexp, (msg) => {
+                bot.onText(regexp, async (msg) => {
                     if (msg.chat.id === chat_id) {
-                        fact(msg, match)
+                        await fact(msg)
                         bot.removeTextListener(regexp);
                     }
 
@@ -272,8 +260,8 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 break;
             case "Not Work":
 
-                bot.sendMessage(chat_id, "Не работаю" );
-                notWork(msg, await getTaskForToday(chat_id, currentDate));
+                await bot.sendMessage(chat_id, "Не работаю" );
+                await notWork(msg, await getTaskForToday(chat_id, currentDate));
                 break;
 
 
@@ -290,9 +278,9 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
                 console.log(new Date(date));
 
-                bot.onText(regexp, (msg)=>{
+                bot.onText(regexp, async (msg)=>{
                     if (msg.chat.id === chat_id) {
-                        plan(msg, match, new Date(date))
+                        await plan(msg, match, new Date(date))
                         // bot.sendMessage(chat_id, msg.text);
                         bot.removeTextListener(regexp);
                     }
@@ -322,10 +310,10 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
                 // await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id});
 
-                bot.sendMessage(chat_id, `Введите факт за ${date}`)
-                bot.onText(regexp, (msg) => {
+                await bot.sendMessage(chat_id, `Введите факт за ${date}`)
+                bot.onText(regexp, async (msg) => {
                     if (msg.chat.id === chat_id) {
-                        fact(msg, match, date)
+                        await fact(msg, "", date)
                         bot.removeTextListener(regexp);
                     }
                 })
@@ -333,9 +321,9 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 break;
             // Not Work Debt
             case "NWD":
-                bot.sendMessage(chat_id, `Не работал ${date}` );
+                await bot.sendMessage(chat_id, `Не работал ${date}` );
                 // await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id});
-                notWork(msg, await getTaskForToday(chat_id, date))
+                await notWork(msg, await getTaskForToday(chat_id, date))
                 break;
 
 
@@ -354,13 +342,13 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 const time = new Date()
                 time.setHours(to[0] - from[0], to[1] - from[1])
 
+
+                // Получаем время в виде 06:30 (получаем время работы)
                 const result = `${time.getHours() > 10 ? time.getHours() : "0" + time.getHours() }:${ time.getMinutes() > 10 ? time.getMinutes() : "0" + time.getMinutes() }`;
 
-                task.update({
-                    "hours": result
-                })
+                await task.update({"hours": result})
 
-                bot.sendMessage(chat_id, "Полный день");
+                await bot.sendMessage(chat_id, "Полный день");
 
                 break;
 
@@ -396,19 +384,19 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
 
 
-                bot.sendMessage(chat_id, "Вы подтвердили запрос")
-                bot.sendMessage(id, "Запрос подтвержден");
-                bot.sendMessage(lead.chat_id, "СТО подтвердил запрос\n"+text)
+                await bot.sendMessage(chat_id, "Вы подтвердили запрос")
+                await bot.sendMessage(id, "Запрос подтвержден");
+                await bot.sendMessage(lead.chat_id, "СТО подтвердил запрос\n"+text)
 
                 break;
             case "R":
-                bot.sendMessage(chat_id, "Вы отклонили запрос")
-                bot.sendMessage(id, "Запрос отклонен");
+                await bot.sendMessage(chat_id, "Вы отклонили запрос")
+                await bot.sendMessage(id, "Запрос отклонен");
                 break;
         }
     } catch (e){
-        bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
-        bot.sendMessage(chat_id, e.message);
+        await bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
+        await bot.sendMessage(chat_id, e.message);
     }
 });
 
@@ -433,11 +421,11 @@ async function startCron(){
             const exist = await getTaskForToday(user.chat_id, setUTC(new Date()))
             if (exist !== null && exist?.plan) {
 
-                bot.sendMessage(user.chat_id, "Ваш план \n"+exist?.plan);
-                debt(user.chat_id, match);
+                await bot.sendMessage(user.chat_id, "Ваш план \n"+exist?.plan);
+                await debt(user.chat_id, match);
 
             } else {
-                startPlan(user.chat_id)
+                await startPlan(user.chat_id)
             }
 
 
@@ -445,7 +433,7 @@ async function startCron(){
         startDay.start();
 
         const split = user.work_time.split('-');
-        const from = split[0].split(':');
+        // const from = split[0].split(':');
         const to = split[1].split(':');
 
         const endTime = new Date()
@@ -462,14 +450,14 @@ async function startCron(){
 
             const exist = await getTaskForToday(user.chat_id, setUTC(new Date()))
             if (exist === null || exist?.plan === null) {
-                bot.sendMessage(user.chat_id, "Сначала введите план");
+                await bot.sendMessage(user.chat_id, "Сначала введите план");
             }
             else if (exist?.fact !== null ) {
 
-                bot.sendMessage(user.chat_id, "Ваш факт \n"+exist?.fact)
+                await bot.sendMessage(user.chat_id, "Ваш факт \n"+exist?.fact)
 
             } else {
-                startFact(user.chat_id)
+                await startFact(user.chat_id)
             }
         })
         endDay.start();

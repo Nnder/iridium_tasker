@@ -11,18 +11,17 @@ async function info(msg, match) {
 
     let {phone, fio, team, profession, work_time} = data.dataValues;
     let userInfo = `
-Текущая информация о вас    
-Тел: ${phone}
-ФИО: ${fio}
-Текущая команда: ${team}
-Профессия: ${profession}
-Рабочее время: ${work_time}
+            Текущая информация о вас
+            Тел: ${phone}
+            ФИО: ${fio}
+            Текущая команда: ${team}
+            Профессия: ${profession}
+            Рабочее время: ${work_time}
+            
+            Учитывая выбранный график работы, бот пришлёт уведомление о вводе плана и факта. 
+            Пожалуйста, установите корректный график работы.`;
 
-Учитывая выбранный график работы, бот пришлёт уведомление о вводе плана и факта. 
-Пожалуйста, установите корректный график работы.
-    `;
-
-    bot.sendMessage(chat_id, userInfo);
+    await bot.sendMessage(chat_id, userInfo);
 }
 
 module.exports = {

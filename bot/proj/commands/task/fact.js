@@ -2,7 +2,7 @@ const {bot} = require("../../index");
 const {getTaskForToday, setUTC} = require("./getTask");
 const {addHours} = require("./addHours");
 
-async function fact(msg, match, date = setUTC(new Date())){
+async function fact(msg, match = "", date = setUTC(new Date())){
     const chat_id = msg.chat.id;
     const task = await getTaskForToday(chat_id, date);
 
@@ -12,11 +12,11 @@ async function fact(msg, match, date = setUTC(new Date())){
             "fact": msg.text
         })
 
-        bot.sendMessage(chat_id, "факт успешно записан");
+        await bot.sendMessage(chat_id, "факт успешно записан");
 
-        addHours(msg, await getTaskForToday(chat_id, date))
+        await addHours(msg, await getTaskForToday(chat_id, date))
     } else {
-        bot.sendMessage(chat_id, "Факт не записан");
+        await bot.sendMessage(chat_id, "Факт не записан");
     }
 
 }
@@ -25,7 +25,7 @@ async function startFact(chat_id) {
 
     let options = {
         reply_markup: JSON.stringify({
-
+            disable_notification: true,
             inline_keyboard: [
                 [
                     { text: "Ввести факт", callback_data: JSON.stringify({type: "Enter fact", chat_id: chat_id}) },
@@ -39,7 +39,7 @@ async function startFact(chat_id) {
     let messageWithKeyboard = await bot.sendMessage(chat_id, "Добрый вечер! Что сделал за сегодня?", options);
 
     const timer = setTimeout(async ()=>{
-        // из-за того что не могу получить по id сообщение пришлось изворачиватся
+        // из-за того что не могу получить по id сообщение пришлось изворачиваться
         try {
             const {message_id} = messageWithKeyboard;
             await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})

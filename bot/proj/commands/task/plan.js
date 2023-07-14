@@ -3,7 +3,7 @@ const {getTaskForToday, setUTC} = require("./getTask");
 const {tasks, users} = require("../../database/models");
 
 
-async function plan(msg, match, date = setUTC(new Date())) {
+async function plan(msg, match = "", date = setUTC(new Date())) {
 
     console.log(date);
     const chat_id = msg.chat.id;
@@ -12,9 +12,7 @@ async function plan(msg, match, date = setUTC(new Date())) {
 
     if (task !== null) {
 
-        task.update({
-            "plan": msg.text
-        })
+        await task.update({"plan": msg.text})
 
         await bot.sendMessage(chat_id, "План успешно записан");
 
@@ -32,6 +30,7 @@ async function startPlan(chat_id){
     let options = {
         reply_markup:
             {
+                disable_notification: true,
                 inline_keyboard: [
                     [
                         { text: "Ввести план на день", callback_data: JSON.stringify({type: "Enter Plan", chat_id: chat_id}) },
@@ -46,7 +45,7 @@ async function startPlan(chat_id){
     const currentDate = setUTC(new Date());
 
     if (await getTaskForToday(chat_id, currentDate) === null) {
-        task = await tasks.create({
+        let task = await tasks.create({
             "chat_id": chat_id,
             "date": currentDate,
         })
@@ -55,7 +54,7 @@ async function startPlan(chat_id){
     console.log(await timestampWork(chat_id))
 
     const timer = setTimeout(async ()=>{
-        // из-за того что не могу получить по id сообщение пришлось изворачиватся
+        // из-за того что не могу получить по id сообщение пришлось изворачиваться
         try {
             const {message_id} = messageWithKeyboard;
             await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})

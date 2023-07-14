@@ -1,15 +1,10 @@
 const {bot} = require("../../index");
-const {getTaskForToday, setUTC} = require("./getTask");
+const {setUTC} = require("./getTask");
 const {tasks} = require("../../database/models");
 const {Op} = require("sequelize");
-const {plan} = require('./plan');
-const {fact} = require('./fact');
-const {notWork} = require("../notWork/notWork");
 
 async function debt(chat_id, match = ""){
-
     let start = new Date(0);
-
     let end = setUTC(new Date());
     end.setUTCHours(-24)
     // end.setUTCHours(23,59,59,999);
@@ -33,6 +28,7 @@ async function debt(chat_id, match = ""){
         const keyboardFact = {
             reply_markup:
                 {
+                    disable_notification: true,
                     inline_keyboard: [
                         [
                             { text: "Ввести Факт", callback_data: JSON.stringify({type: "EFD", id: chat_id, date: task.date}) },
@@ -44,6 +40,7 @@ async function debt(chat_id, match = ""){
         const keyboardPlanFact = {
             reply_markup:
                 {
+                    disable_notification: true,
                     inline_keyboard: [
                         [
                             { text: "Ввести план", callback_data: JSON.stringify({type: "EPD", id: chat_id, date: task.date}) },
