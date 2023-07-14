@@ -12,28 +12,12 @@ const {where, Op} = require("sequelize");
 async function notWork(msg, task){
     const chat_id = msg.chat.id;
 
-    // const currentDate = new Date();
-    // currentDate.setHours(0,0,0,0);
-    //
-    // const taskDate = new Date(task.date)
-    // taskDate.setHours(0,0,0,0);
-    //
-    // if(taskDate.toString() != currentDate.toString()){
-    //
-    // }
-
-    // await task.destroy();
-
-
-
-
     const {message_id} = await bot.sendMessage(chat_id, "Заполните форму");
-
     const webAppKeyboard = {
         reply_markup: {
             disable_notification: true,
             inline_keyboard: [
-                [{text:"Форма", web_app: {url: `${webAppUrl}/free.html?user=${chat_id}&mid=${message_id}`}}]
+                [{text:"Форма", web_app: {url: `${webAppUrl}/free.html?user=${chat_id}&mid=${message_id}&tid=${task.id}`}}]
             ]
         }
     }

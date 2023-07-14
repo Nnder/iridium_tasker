@@ -7,19 +7,18 @@ const {bot} = require('../../index');
 async function info(msg, match) {
     const chat_id = msg.chat.id;
 
-    const data = await users.findOne({ where: { chat_id: chat_id } })
+    const user = await users.findOne({ where: { chat_id: chat_id } })
 
-    let {phone, fio, team, profession, work_time} = data.dataValues;
     let userInfo = `
-            Текущая информация о вас
-            Тел: ${phone}
-            ФИО: ${fio}
-            Текущая команда: ${team}
-            Профессия: ${profession}
-            Рабочее время: ${work_time}
-            
-            Учитывая выбранный график работы, бот пришлёт уведомление о вводе плана и факта. 
-            Пожалуйста, установите корректный график работы.`;
+Текущая информация о вас
+Тел: ${user.phone}
+ФИО: ${user.fio}
+Текущая команда: ${user.team}
+Профессия: ${user.profession}
+Рабочее время: ${user.work_time}
+
+Учитывая выбранный график работы, бот пришлёт уведомление о вводе плана и факта. 
+Пожалуйста, установите корректный график работы.`;
 
     await bot.sendMessage(chat_id, userInfo);
 }

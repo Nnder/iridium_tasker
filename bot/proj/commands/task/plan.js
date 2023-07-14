@@ -11,17 +11,11 @@ async function plan(msg, match = "", date = setUTC(new Date())) {
     console.log(task);
 
     if (task !== null) {
-
         await task.update({"plan": msg.text})
-
         await bot.sendMessage(chat_id, "План успешно записан");
-
-
-
     } else {
         await bot.sendMessage(chat_id, "План не записан");
     }
-
 }
 
 
@@ -39,6 +33,9 @@ async function startPlan(chat_id){
                 ],
             }
     };
+
+
+
 
     let messageWithKeyboard = await bot.sendMessage(chat_id, "Доброе утро! Что на сегодня запланировал?", options)
 

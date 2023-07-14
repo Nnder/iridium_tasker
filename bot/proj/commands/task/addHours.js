@@ -2,12 +2,7 @@ const {bot, webAppUrl} = require("../../index");
 const {tasks, users} = require("../../database/models");
 async function addHours(msg, task){
     const chat_id = msg.chat.id;
-
-
-
-    let messageWithKeyboard = await bot.sendMessage(chat_id, "У тебя был полный день?")
-    const {message_id} = messageWithKeyboard;
-
+    const {message_id} = await bot.sendMessage(chat_id, "У тебя был полный день?")
 
     let fullDay = {
         reply_markup:
@@ -26,8 +21,6 @@ async function addHours(msg, task){
     const timer = setTimeout(async ()=>{
         // из-за того что не могу получить по id сообщение пришлось изворачиваться
         try {
-
-
             const timerTask = await tasks.findOne(({where: {id: task.id}}))
 
             if (timerTask.hours == null){

@@ -6,8 +6,18 @@ const {info} = require('./user/info');
 const {getTaskForToday, setUTC} = require("./task/getTask");
 const {startPlan} = require("./task/plan");
 
+//Код писал не я только немного отрефакторил
 async function start(msg, match){
     const chatId = msg.chat.id;
+
+    const remove = {
+        reply_markup: {
+            remove_keyboard: true,
+            keyboard: [
+
+            ]
+        }
+    }
 
     const reqPhone = {
         reply_markup: {
@@ -21,20 +31,16 @@ async function start(msg, match){
             ]
         }
     }
-
-    const remove = {reply_markup: { remove_keyboard: true },}
-
-    const isIdUnique = chat_id =>
-        users.findOne({ where: { chat_id }, attributes: ['chat_id'] })
-            .then(token => token)
-
+    const isIdUnique = async (chat_id) => await users.findOne({ where: { chat_id }, attributes: ['chat_id'] })
 
     if (await isIdUnique(chatId)) {
         await bot.sendMessage(chatId, 'Вы уже зарегистрированы', remove)
     } else {
         await bot.sendMessage(chatId, 'Вас нет в списке, отправьте номер ', reqPhone)
 
-        await bot.once('contact', async (msg) => {
+        const regexp = new RegExp(`contact|${chatId}`, "");
+
+        await bot.on('contact', async (msg) => {
             if (chatId === msg.chat.id){
                 const telUser = msg.contact.phone_number.replace('+', '')
                 const exist = await getTaskForToday(msg.chat.id, setUTC(new Date()))
@@ -42,7 +48,6 @@ async function start(msg, match){
                 const isIdUnique = phone =>
                     users.findOne({ where: { phone }, attributes: ['phone'] })
                         .then(token => token !== null)
-                        .then(isUnique => isUnique);
 
                 isIdUnique(telUser).then(isUnique => {
                     if (isUnique) {
@@ -58,7 +63,6 @@ async function start(msg, match){
                             if (exist !== null && exist?.plan) {
 
                                 bot.sendMessage(msg.chat.id, "Ваш план \n"+exist?.plan);
-                                // debt(msg, match);
 
                             } else {
                                 startPlan(msg.chat.id)
