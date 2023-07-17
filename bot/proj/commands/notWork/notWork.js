@@ -24,7 +24,6 @@ async function notWork(msg, task){
 
     await bot.editMessageReplyMarkup(webAppKeyboard.reply_markup, {chat_id, message_id})
 
-
     const timer = setTimeout(()=>{
         try {
             bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})

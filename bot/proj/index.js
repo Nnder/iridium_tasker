@@ -168,6 +168,7 @@ bot.onText(/\/fact\b/, async (msg, match) => {
 const express = require('express');
 const cors = require('cors');
 
+
 const app = express();
 
 app.use(express.json());
@@ -421,8 +422,13 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 await notWork(msg, await getTaskForToday(chat_id, date))
                 break;
 
-
-
+            // Последний день больничного (спрашиваем у пользователя как дела)
+            case "AllRight":
+                const endNotWork = freeDays.findOne({where:{id: fid}});
+                const userStatus = await users.findOne({where:{chat_id: id}})
+                userStatus.update({status: true});
+                await bot.sendMessage(id, "Все хорошо");
+                break;
 
             // Add hours
             case "Full day":
@@ -503,9 +509,6 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
                 //     });
                 // }
 
-
-
-
                 await bot.sendMessage(chat_id, "Вы подтвердили запрос")
                 await bot.sendMessage(id, "Запрос подтвержден");
                 await bot.sendMessage(lead.chat_id, "СТО подтвердил запрос\n"+text)
@@ -528,29 +531,21 @@ bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
 
 async function startCron(){
     const allUsers = await users.findAll({where: {status: true}})
-
     allUsers.map(async (user)=>{
-        // console.log(user.work_time)
 
         const time = user.work_time.split('-');
         const start = time[0].split(':');
         const end = time[1].split(':');
 
-
-
         let startDay = new CronJob(`00 ${start[1]} ${start[0]} * * 1-5`, async ()=>{
-
             const exist = await getTaskForToday(user.chat_id, setUTC(new Date()))
             if (exist !== null && exist?.plan) {
-
                 await bot.sendMessage(user.chat_id, "Ваш план \n"+exist?.plan);
                 await debt(user.chat_id);
-
             } else {
                 await startPlan(user.chat_id)
             }
-
-
+            startDay.stop();
         })
         startDay.start();
 
@@ -581,9 +576,94 @@ async function startCron(){
             } else {
                 await startFact(user.chat_id)
             }
+
+            endDay.stop();
         })
         endDay.start();
     })
 }
 
-startCron()
+const {Op} = require("sequelize");
+
+async function setUserStatus(){
+    const currentDate = new Date().setHours(0,0,0,0);
+
+    const notWork = await freeDays.findAll({where: {
+            "from": {[Op.lte]: currentDate},
+            "to": {[Op.gte]: currentDate},
+            "status": true,
+        }
+    })
+
+    console.log(notWork.length);
+
+    notWork.map( async (el)=>{
+        console.log(`${el.from} ${el.to} ${currentDate}}`)
+
+        const user = await users.findOne({where:{chat_id : el.chat_id}})
+        const chat_id = user.chat_id;
+
+        const from = new Date(el.from).setHours(0,0,0,0);
+        const to = new Date(el.to).setHours(0,0,0,0);
+
+        if(to === currentDate && from === currentDate){
+            // выйти или попросить еще
+            // cron на ближайший 00 00 00 - 1 раз
+            user.update({status: true});
+
+        } else if(to === currentDate){
+
+            setTimeout(async ()=>{
+
+
+                const {message_id} = await bot.sendMessage(chat_id, "Как дела? Готов выйти завтра на работу?");
+
+                const notWorkKeyboard = {
+                    reply_markup: {
+                        disable_notification: true,
+                        inline_keyboard: [
+                            [
+                                {text: "Все хорошо", callback_data: JSON.stringify({type: "AllRight", fid: el.id, id: chat_id}) },
+                                {text:"Взять еще", web_app: {url: `${webAppUrl}/free.html?user=${chat_id}&mid=${message_id}&tid=${null}`}}
+                            ]
+                        ]
+                    }
+                }
+
+                await bot.editMessageReplyMarkup(notWorkKeyboard.reply_markup, {chat_id, message_id})
+
+                const timer = setTimeout(async ()=>{
+                    // из-за того что не могу получить по id сообщение пришлось изворачиваться
+                    try {
+                        await bot.editMessageReplyMarkup({inline_keyboard: []}, {chat_id, message_id})
+                        await bot.sendMessage(chat_id, "Все хорошо");
+
+                        user.update({status: true});
+                    } catch (e) {
+                        console.log("Клавиатура уже была изменена")
+                    }
+                }, 1000*60*60*6);
+
+            }, 1000*60*60*18)
+        }
+        else {
+            user.update({status: false});
+        }
+
+        // если наступил начальны день то статус в false и последующие дни тоже в false кроме последнего
+        // можно
+
+        // 00 -> создаю на часов 12 на весь день 12
+
+    })
+}
+
+
+let changeStatus = new CronJob(`00 30 00 * * 1-5`, async ()=>{
+    await setUserStatus();
+    await startCron();
+})
+changeStatus.start();
+
+
+
