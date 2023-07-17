@@ -1,15 +1,15 @@
 // вывести всю информацию о пользователе
 // имя, задач за неделю, команды, кто он(стажер, программист, ыдизайнер...)
 
-const {users} = require('../../database/models');
-const {bot} = require('../../index');
+const { users } = require("../../database/models");
+const { bot } = require("../../index");
 
 async function info(msg, match) {
-    const chat_id = msg.chat.id;
+  const chat_id = msg.chat.id;
 
-    const user = await users.findOne({ where: { chat_id: chat_id } })
+  const user = await users.findOne({ where: { chat_id } });
 
-    let userInfo = `
+  const userInfo = `
 Текущая информация о вас
 Тел: ${user.phone}
 ФИО: ${user.fio}
@@ -20,9 +20,9 @@ async function info(msg, match) {
 Учитывая выбранный график работы, бот пришлёт уведомление о вводе плана и факта. 
 Пожалуйста, установите корректный график работы.`;
 
-    await bot.sendMessage(chat_id, userInfo);
+  await bot.sendMessage(chat_id, userInfo);
 }
 
 module.exports = {
-    info
-}
+  info,
+};
