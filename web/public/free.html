@@ -6,102 +6,175 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="utf-8">
 
+    <script src="dist/air-datepicker.js"></script>
+    <link rel="stylesheet" href="dist/air-datepicker.css">
+
     <style>
+        * {
+            /*padding: 0;*/
+            margin: 0;
+        }
+
+        .logo {
+            margin-bottom: 10px;
+        }
+
         body{
-            color: var(--tg-theme-text-color);
-            background: var(--tg-theme-bg-color);
+            font-family: DINPro Light;
+            color: #fff;
+            background: #0057B7;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-size: 18px;
+            font-size: 20px;
+            padding: 0px;
+            margin: 10px 0px 0px 0px;
         }
 
-        .hint{
-            color: var(--tg-theme-hint-color);
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+            max-width: 700px;
+            /*padding: 10px;*/
         }
 
-        .link{
-            color: var(--tg-theme-link-color);
+        .item {
+            width: 90%;
+            margin: 0px 0px 10px 0px;
+            padding: 0;
         }
 
-        .button{
-            background: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            border: none;
-            font-size: 18px;
-        }
-
-        .button:not(:last-child){
-            color: var(--tg-theme-link-color);
-            background: var(--tg-theme-bg-color);
-            margin-bottom: 20px
+        #calendar {
+            padding: 3px 0px 3px 0px;
         }
 
         input {
-            color: var(--tg-theme-link-color);
-            background: var(--tg-theme-bg-color);
-            font-size: 20px;
+            color: black;
+            background: white;
+            font-size: 18px;
+            width: 100%;
+            max-width: 700px;
+            min-width: 150px;
+            margin: 0;
+            border: none;
+            padding: 0;
         }
 
         textarea {
-            color: var(--tg-theme-link-color);
-            background: var(--tg-theme-bg-color);
+            font-size: 18px;
+            color: black;
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            min-width: 150px;
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .cause {
+            font-size: 18px;
+            color: black;
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            min-width: 150px;
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .air-datepicker {
+            width: 100%;
+            max-width: 700px;
+            min-width: 150px;
+            margin: 1px 0px 0px 0px;
+            border: none;
+            border-radius: 0;
         }
     </style>
 </head>
 <body>
 
-<div>
-    <div>
-        <div>Напишите причину</div>
-        <input type="text" list="cause-list" class="cause">
-
-        <datalist id="cause-list">
-            <option value="Взять день">
-            <option value="Поход к врачу">
-            <option value="Больничный">
-        </datalist>
+<div class="main">
+    <div class="logo">
+        <img src="dist/logo.svg">
     </div>
 
-    <div>
-        <div>Выберите промежуток</div>
+    <div class="item">
+        <div>Выберите причину</div>
+
+        <select class="cause">
+            <option value=""></option>
+            <option value="Взять день">Взять день</option>
+            <option value="Поход к врачу">Поход к врачу</option>
+            <option value="Больничный">Больничный</option>
+            <option value="Отпуск">Отпуск</option>
+        </select>
+
+    </div>
+
+    <div class="item">
+        <div>Выберите Дату</div>
         <div>
-            <input type="date" class="date-start">
-            <input type="date" class="date-end">
+            <input readonly id='calendar'>
         </div>
     </div>
 
-    <div>
+    <div class="item">
         <div>Сообщение</div>
-        <textarea cols="30" rows="10" placeholder="Опишите что случилось" class="message"></textarea>
+        <textarea rows="10" placeholder="Опишите что случилось" class="message"></textarea>
     </div>
 </div>
 <script>
 
+    let date = new AirDatepicker('#calendar', {
+        multipleDates: 2,
+        inline: true,
+        multipleDatesSeparator: " - ",
+        dateFormat: "yyyy.MM.dd",
+    });
+
     let tg = window.Telegram.WebApp; //получаем объект webapp телеграма
     tg.expand(); //расширяем на все окно
     tg.MainButton.text = "Отправить"; //изменяем текст кнопки
-    tg.MainButton.textColor = "#E0FFFF"; //изменяем цвет текста кнопки
-    tg.MainButton.color = "#143F6B"; //изменяем цвет бэкграунда кнопки
+    tg.MainButton.textColor = "#fff"; //изменяем цвет текста кнопки
+    tg.MainButton.color = "#032d48"; //изменяем цвет бэкграунда кнопки
     tg.MainButton.show();
 
 
     Telegram.WebApp.onEvent('mainButtonClicked', async function(){
 
+
         tg.MainButton.disable()
 
-        const from = document.querySelector('.date-start').value;
-        const to = document.querySelector('.date-end').value;
+        let calendar = document.querySelector('#calendar').value.split("-")
+        let from
+        let to
+
+        if (calendar.length > 1) {
+            from = calendar[0].trim();
+            to = calendar[1].trim();
+        } else {
+            from = calendar[0].trim();
+            to = from;
+        }
+
+
         const cause = document.querySelector('.cause').value;
         const msg = document.querySelector('.message').value;
 
         const url = new URL(window.location.href)
         let uid = url.searchParams.get("user");
         let mid = url.searchParams.get("mid");
-
+        let tid = url.searchParams.get("tid");
 
         if ( !from || !to || !cause || !msg){
             alert(`Заполните все поля`);
+            tg.MainButton.enable()
         } else {
 
             let data = {
@@ -110,10 +183,11 @@
                 from,
                 to,
                 uid,
-                mid
+                mid,
+                tid,
             }
 
-            const url = 'https://bbdd-46-48-25-143.ngrok-free.app/web-data';
+            const url = 'https://ec31-46-48-25-143.ngrok-free.app/web-data';
 
             let response = await fetch(url, {
                 method: 'POST',

@@ -1,40 +1,40 @@
-const sequelize = require("./db");
-const { DataTypes } = require("sequelize");
+const sequelize = require('./db')
+const { DataTypes } = require('sequelize')
 
-const users = sequelize.define("users", {
+const users = sequelize.define('users', {
   phone: {
     type: DataTypes.CHAR(11),
     primaryKey: true,
     autoIncrement: false,
-    allowNull: false,
+    allowNull: false
   },
   chat_id: {
-    type: DataTypes.BIGINT,
+    type: DataTypes.BIGINT
   },
   fio: {
-    type: DataTypes.CHAR(100),
+    type: DataTypes.CHAR(100)
   },
   team: {
-    type: DataTypes.CHAR(100),
+    type: DataTypes.CHAR(100)
   },
   // Должность (стажер, программист, дизайнер) здесь могут совмещать несколько должностей (Программист и Стажер)
   profession: {
-    type: DataTypes.CHAR(100),
+    type: DataTypes.CHAR(100)
   },
   // Права доступа 1-4
   role: {
-    type: DataTypes.SMALLINT,
+    type: DataTypes.SMALLINT
   },
   // время работы (будет выглядеть так) 10-16 (в качестве примера наш график работы) (пускай пока будет так может потом изменим)
   work_time: {
-    type: DataTypes.CHAR(20),
+    type: DataTypes.CHAR(20)
   },
   // работает ли user true/false (не будет работать если взят отпуск, больничный и тд)
   status: {
-    type: DataTypes.BOOLEAN,
-  },
-});
-module.exports.users = users;
+    type: DataTypes.BOOLEAN
+  }
+})
+module.exports.users = users
 
 // tasks{
 //   id
@@ -44,65 +44,65 @@ module.exports.users = users;
 //   date
 // }
 
-const tasks = sequelize.define("tasks", {
+const tasks = sequelize.define('tasks', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-    allowNull: false,
+    allowNull: false
   },
   chat_id: {
-    type: DataTypes.BIGINT,
+    type: DataTypes.BIGINT
   },
   plan: {
-    type: DataTypes.TEXT,
+    type: DataTypes.TEXT
   },
   fact: {
-    type: DataTypes.TEXT,
+    type: DataTypes.TEXT
   },
   // дата создания задача
   date: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATE
   },
   hours: {
-    type: DataTypes.TIME,
-  },
-});
-module.exports.tasks = tasks;
+    type: DataTypes.TIME
+  }
+})
+module.exports.tasks = tasks
 
 // таблица для записи user на больничный, отпуск и тд
-const freeDays = sequelize.define("freedays", {
+const freeDays = sequelize.define('freedays', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-    allowNull: false,
+    allowNull: false
   },
   chat_id: {
-    type: DataTypes.BIGINT,
+    type: DataTypes.BIGINT
   },
   // Подтвердили ли больничный true/false
   status: {
-    type: DataTypes.BOOLEAN,
+    type: DataTypes.BOOLEAN
   },
   // причина (Больничный, Отпуск...)
   cause: {
-    type: DataTypes.CHAR(100),
+    type: DataTypes.CHAR(100)
   },
   // Сообщение от user чтоб он мог объяснить причину или чето еще
   message: {
-    type: DataTypes.TEXT,
+    type: DataTypes.TEXT
   },
   // дата начала
   from: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATE
   },
   // дата окончания
   to: {
-    type: DataTypes.DATE,
-  },
-});
-module.exports.freeDays = freeDays;
+    type: DataTypes.DATE
+  }
+})
+module.exports.freeDays = freeDays
 
 // дальше для старой бд но их оставил чтоб потом понять как делались отчеты в exel
 // const reports = sequelize.define('reports',

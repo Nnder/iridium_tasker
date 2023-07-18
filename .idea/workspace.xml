@@ -4,7 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2c526d9c-650a-4b5a-a167-ffd07637fccc" name="Changes" comment="" />
+    <list default="true" id="2c526d9c-650a-4b5a-a167-ffd07637fccc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/web/public/dist/air-datepicker.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/public/dist/grudus-timepicker.es5.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/public/dist/logo.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/public/dist/timepicker.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/callback_query.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/notWork/notWork.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/notWork/notWork.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/start.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/start.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/addHours.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/addHours.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/debt.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/debt.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/fact.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/fact.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/getFullPlan.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/getFullPlan.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/getTask.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/getTask.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/plan.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/plan.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/user/canSend.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/user/canSend.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/commands/user/info.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/user/info.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/cron/jobs.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/cron/jobs.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/database/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/database/db.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/database/models.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/database/models.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/proj/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/public/free.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/public/free.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/public/time.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/public/time.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -12,6 +36,12 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/bot/proj/index.js" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2Qoj0KtjwVHbxgbesTH1k02IS8q" />
   <component name="ProjectViewState">
@@ -26,18 +56,23 @@
     "git-widget-placeholder": "master",
     "javascript.nodejs.core.library.configured.version": "10.19.0",
     "javascript.nodejs.core.library.typings.version": "10.17.60",
-    "last_opened_file_path": "/home/ross/Desktop/here",
+    "last_opened_file_path": "/home/ross/WebstormProjects/iridium_bot/web/public/dist",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_interpreter_path": "node",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "configurable.group.language",
     "ts.external.directory.path": "/home/ross/Downloads/WebStorm-231.8770.64/plugins/javascript-impl/jsLanguageServicesImpl/external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/web/public/dist" />
+      <recent name="$PROJECT_DIR$/web/public" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/bot" />
       <recent name="$PROJECT_DIR$/commands/user" />
@@ -66,7 +101,17 @@
       <workItem from="1687734714640" duration="16948000" />
       <workItem from="1687842449064" duration="10157000" />
       <workItem from="1687955934416" duration="1199000" />
-      <workItem from="1687984660674" duration="18874000" />
+      <workItem from="1687984660674" duration="19257000" />
+      <workItem from="1688052322642" duration="19000" />
+      <workItem from="1688052342397" duration="2108000" />
+      <workItem from="1688054451456" duration="15149000" />
+      <workItem from="1688358817238" duration="1868000" />
+      <workItem from="1688416129180" duration="81815000" />
+      <workItem from="1688964480607" duration="53451000" />
+      <workItem from="1689538354548" duration="904000" />
+      <workItem from="1689611016017" duration="18079000" />
+      <workItem from="1689677834666" duration="306000" />
+      <workItem from="1689682924413" duration="18979000" />
     </task>
     <servers />
   </component>

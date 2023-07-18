@@ -7,174 +7,134 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="utf-8">
 
+    <script src="dist/grudus-timepicker.es5.js"></script>
+    <link rel="stylesheet" href="dist/timepicker.css">
 
     <style>
+        * {
+            /*padding: 0;*/
+            margin: 0;
+        }
+
         body{
-            color: var(--tg-theme-text-color);
-            background: var(--tg-theme-bg-color);
+            font-family: DINPro Light;
+            color: #fff;
+            background: #0057B7;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-size: 18px;
-        }
-
-        .hint{
-            color: var(--tg-theme-hint-color);
-        }
-
-        .link{
-            color: var(--tg-theme-link-color);
-        }
-
-        .button{
-            background: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            border: none;
-            font-size: 18px;
-        }
-
-        .button:not(:last-child){
-            margin-bottom: 20px
-        }
-
-        select {
-            color: var(--tg-theme-link-color);
-            background: var(--tg-theme-bg-color);
             font-size: 20px;
-            margin-top: 5px;
+            padding: 0px;
+            margin: 10px 0px 0px 0px;
         }
+
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+            max-width: 700px;
+            /*padding: 10px;*/
+        }
+
+        .item {
+            width: 90%;
+            margin: 0px 0px 10px 0px;
+            padding: 0;
+        }
+
+        input {
+            font-size: 30px;
+            color: black;
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            min-width: 150px;
+            margin: 0;
+            border: none;
+            padding: 0;
+            border-radius: 6px;
+        }
+
+        button {
+            background-color: #0EA2FF;
+            color: #fff;
+            border-radius: 6px 0px 0px 6px;
+            border: 2px solid #0EA2FF;
+            /*margin: 0px;*/
+            width: 100px;
+            font-size: 30px;
+        }
+
+        .picker {
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            margin-bottom: 10px;
+        }
+
+
     </style>
 </head>
 <body>
 
-<div>
-    <div>
-        <div>Выберите время работы</div>
+<div class="main">
+    <div class="logo">
+        <img src="dist/logo.svg">
+    </div>
+    <div class="item">
+<!--        <div>Выберите время работы</div>-->
 
-        <div style="display: flex; flex-direction: column;">
-
-            <div>
-
-                <label>
-                    <select class="from" onchange="fromChange()">
-                        <option value="Время начала дня">Время начала дня</option>
-                        <option value="07:00">07:00</option>
-                        <option value="07:30">07:30</option>
-                        <option value="08:00">08:00</option>
-                        <option value="08:30">08:30</option>
-                        <option value="09:00">09:00</option>
-                        <option value="09:30">09:30</option>
-                        <option value="10:00">10:00</option>
-                        <option value="10:30">10:30</option>
-                        <option value="11:00">11:00</option>
-                        <option value="11:30">11:30</option>
-                        <option value="12:00">12:00</option>
-                        <option value="12:30">12:30</option>
-                        <option value="13:00">13:00</option>
-                        <option value="13:30">13:30</option>
-                        <option value="14:00">14:00</option>
-                        <option value="14:30">14:30</option>
-                        <option value="15:00">15:00</option>
-                        <option value="15:30">15:30</option>
-                        <option value="16:00">16:00</option>
-                        <option value="16:30">16:30</option>
-                        <option value="17:00">17:00</option>
-                        <option value="17:30">17:30</option>
-                        <option value="18:00">18:00</option>
-                        <option value="18:30">18:30</option>
-                        <option value="19:00">19:00</option>
-                        <option value="19:30">19:30</option>
-                        <option value="20:00">20:00</option>
-                        <option value="20:30">20:30</option>
-                        <option value="21:00">21:00</option>
-                        <option value="21:30">21:30</option>
-                        <option value="22:00">22:00</option>
-                        <option value="22:30">22:30</option>
-                        <option value="23:00">23:00</option>
-                        <option value="23:30">23:30</option>
-                        <option value="00:00">00:00</option>
-                        <option value="01:00">01:00</option>
-                        <option value="02:00">02:00</option>
-                        <option value="03:00">03:00</option>
-                        <option value="04:00">04:00</option>
-                        <option value="05:00">05:00</option>
-                        <option value="06:00">06:00</option>
-                    </select>
-                </label>
+        <div>
+            <div class="picker">
+                <input type="text" onclick="fromTimepicker()" readonly class="from" placeholder="Начало дня">
             </div>
 
-            <div>
-
-                <label>
-                    <select class="to" onchange="toChange();">
-                        <option value="Время конца дня">Время конца дня</option>
-                        <option value="10:30">10:30</option>
-                        <option value="11:00">11:00</option>
-                        <option value="11:30">11:30</option>
-                        <option value="12:00">12:00</option>
-                        <option value="12:30">12:30</option>
-                        <option value="13:00">13:00</option>
-                        <option value="13:30">13:30</option>
-                        <option value="14:00">14:00</option>
-                        <option value="14:30">14:30</option>
-                        <option value="15:00">15:00</option>
-                        <option value="15:30">15:30</option>
-                        <option value="16:00">16:00</option>
-                        <option value="16:30">16:30</option>
-                        <option value="17:00">17:00</option>
-                        <option value="17:30">17:30</option>
-                        <option value="18:00">18:00</option>
-                        <option value="18:30">18:30</option>
-                        <option value="19:00">19:00</option>
-                        <option value="19:30">19:30</option>
-                        <option value="20:00">20:00</option>
-                        <option value="20:30">20:30</option>
-                        <option value="21:00">21:00</option>
-                        <option value="21:30">21:30</option>
-                        <option value="22:00">22:00</option>
-                        <option value="22:30">22:30</option>
-                        <option value="23:00">23:00</option>
-                        <option value="23:30">23:30</option>
-                        <option value="00:00">00:00</option>
-                        <option value="01:00">01:00</option>
-                        <option value="02:00">02:00</option>
-                        <option value="03:00">03:00</option>
-                        <option value="04:00">04:00</option>
-                        <option value="05:00">05:00</option>
-                        <option value="06:00">06:00</option>
-                        <option value="07:00">07:00</option>
-                        <option value="07:30">07:30</option>
-                        <option value="08:00">08:00</option>
-                        <option value="08:30">08:30</option>
-                        <option value="09:00">09:00</option>
-                        <option value="09:30">09:30</option>
-                        <option value="10:00">10:00</option>
-                    </select>
-                </label>
+            <div class="picker">
+                <input type="text" onclick="toTimepicker()" readonly class="to" placeholder="Конец дня">
             </div>
+
+
         </div>
 
 
     </div>
 </div>
 <script>
+
     let to = document.querySelector(".to");
     let from = document.querySelector(".from");
 
-    function toChange(){
-        tg.MainButton.text = `Работал ${from.value} - ${to.value}`;
+
+    function fromTimepicker() {
+        Timepicker.showPicker({
+            onSubmit: (time) => {
+                from.value = time.formatted();
+                tg.MainButton.text = `Работал ${from.value} - ...`;
+            },
+        });
     }
 
-    function fromChange(){
-        tg.MainButton.text = `Работал ${from.value} - ...`;
+    function toTimepicker() {
+        Timepicker.showPicker({
+            onSubmit: (time) => {
+                to.value = time.formatted();
+                tg.MainButton.text = `Работал ${from.value} - ${to.value}`;
+            },
+        });
     }
 
 
     let tg = window.Telegram.WebApp; //получаем объект webapp телеграма
     tg.expand(); //расширяем на все окно
     tg.MainButton.text = "Заполните поля"; //изменяем текст кнопки
-    tg.MainButton.textColor = "#E0FFFF"; //изменяем цвет текста кнопки
-    tg.MainButton.color = "#143F6B"; //изменяем цвет бэкграунда кнопки
+    tg.MainButton.textColor = "#fff"; //изменяем цвет текста кнопки
+    tg.MainButton.color = "#032d48"; //изменяем цвет бэкграунда кнопки
     tg.MainButton.show();
 
 
@@ -189,8 +149,9 @@
         let task_id = link.searchParams.get("task");
         let mid = link.searchParams.get("mid");
 
-        if ( to.value === "Время конца дня" || from.value === "Время начала дня"){
+        if (!to.value || !from.value){
             alert(`Заполните все поля`);
+            tg.MainButton.enable()
         } else {
 
             const splitFrom = from.value.split(':')
@@ -199,7 +160,7 @@
             const time = new Date()
             time.setHours(splitTo[0] - splitFrom[0], splitTo[1] - splitFrom[1])
 
-            const result = `${time.getHours() > 10 ? time.getHours() : "0" + time.getHours() }:${ time.getMinutes() > 10 ? time.getMinutes() : "0" + time.getMinutes() }`
+            const result = `${time.getHours()}:${ time.getMinutes()}`
 
             alert(result)
 
@@ -212,7 +173,7 @@
                 mid,
             }
 
-            const url = 'https://bbdd-46-48-25-143.ngrok-free.app/web-time';
+            const url = 'https://ec31-46-48-25-143.ngrok-free.app/web-time';
 
             let response = await fetch(url, {
                 method: 'POST',

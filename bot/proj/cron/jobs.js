@@ -1,12 +1,12 @@
-const { CronJob, bot } = require("../index");
+const { CronJob, bot } = require('../index')
 
-function startCron() {
-  const job = new CronJob("00 05 10", () => {
-    bot.sendMessage(1627953478, "cron is working");
-  });
-  job.start();
+function startCron () {
+  const job = new CronJob('00 05 10', () => {
+    bot.sendMessage(1627953478, 'cron is working')
+  })
+  job.start()
 }
 
 module.exports = {
-  startCron,
-};
+  startCron
+}
