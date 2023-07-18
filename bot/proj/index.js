@@ -4,6 +4,8 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, {
   polling: { interval: 300, autoStart: true },
 });
+
+
 const { users, tasks, freeDays } = require("./database/models");
 const webAppUrl = process.env.WEB_APP_URL;
 const CronJob = require("cron").CronJob;
@@ -20,58 +22,81 @@ const { getTaskForToday, setUTC } = require("./commands/task/getTask");
 
 const { start } = require("./commands/start");
 bot.onText(/\/start\b/, async (msg, match) => {
-  await start(msg, match);
+  try {
+    await start(msg, match);
+  } catch (e) {
+    console.log(e.message)
+  }
 });
 
 // временная команда clear
 bot.onText(/\/clear\b/, async (msg, match) => {
-  const chat_id = msg.chat.id;
-  const task = await getTaskForToday(chat_id, setUTC(new Date()));
-  const user = await users.findOne({ where: { chat_id } });
+  try {
+    const chat_id = msg.chat.id;
+    const task = await getTaskForToday(chat_id, setUTC(new Date()));
+    const user = await users.findOne({ where: { chat_id } });
 
-  if (task) {
-    await task.destroy();
+    if (task) {
+      await task.destroy();
+    }
+
+    await user.update({ status: true });
+    await bot.sendMessage(chat_id, "Reseted");
+
+  } catch (e) {
+    console.log(e.message)
   }
 
-  await user.update({ status: true });
-  bot.sendMessage(chat_id, "Reseted");
 });
 
 const { info } = require("./commands/user/info");
 bot.onText(/\/info\b/, async (msg, match) => {
-  if (await canSend(msg.chat.id)) {
-    await info(msg, match);
-  } else {
-    await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
+  try {
+    if (await canSend(msg.chat.id)) {
+      await info(msg, match);
+    } else {
+      await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
+    }
+  } catch (e) {
+    console.log(e);
   }
 });
 
 bot.onText(/\/weekend\b/, async (msg, match) => {
-  const chat_id = msg.chat.id;
-  if (await canSend(msg.chat.id)) {
-    const task = await getTaskForToday(chat_id, setUTC(new Date()));
-    await notWork(msg, task);
-  } else {
-    await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
+  try {
+    const chat_id = msg.chat.id;
+    if (await canSend(msg.chat.id)) {
+      const task = await getTaskForToday(chat_id, setUTC(new Date()));
+      await notWork(msg, task);
+    } else {
+      await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
+    }
+  } catch (e) {
+    console.log(e.message)
   }
+
 });
 
 const { getFullPlan } = require("./commands/task/getFullPlan");
 bot.onText(/\/week\b/, async (msg, match) => {
-  if (await canSend(msg.chat.id)) {
-    const currentDay = setUTC(new Date()).getDay(); // (0-6)
+  try {
+    if (await canSend(msg.chat.id)) {
+      const currentDay = setUTC(new Date()).getDay(); // (0-6)
 
-    if (currentDay >= 1) {
-      const start = setUTC(new Date());
-      start.setDate(start.getDate() - (currentDay - 1));
-      await getFullPlan(msg, start);
+      if (currentDay >= 1) {
+        const start = setUTC(new Date());
+        start.setDate(start.getDate() - (currentDay - 1));
+        await getFullPlan(msg, start);
+      } else {
+        const start = setUTC(new Date());
+        start.setDate(start.getDate() - (currentDay - 1));
+        await getFullPlan(msg, start);
+      }
     } else {
-      const start = setUTC(new Date());
-      start.setDate(start.getDate() - (currentDay - 1));
-      await getFullPlan(msg, start);
+      await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
     }
-  } else {
-    await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
+  } catch (e) {
+    console.log(e.message)
   }
 });
 
@@ -80,105 +105,115 @@ const { notWork, canWorkToday } = require("./commands/notWork/notWork");
 const { debt } = require("./commands/task/debt");
 
 bot.onText(/\/plan\b/, async (msg, match) => {
-  if (await canSend(msg.chat.id)) {
-    const chat_id = msg.chat.id;
-    const exist = await getTaskForToday(chat_id, setUTC(new Date()));
+  try {
+    if (await canSend(msg.chat.id)) {
+      const chat_id = msg.chat.id;
+      const exist = await getTaskForToday(chat_id, setUTC(new Date()));
 
-    if (exist !== null && exist?.plan) {
-      const editKeyboard = {
-        reply_markup: {
-          disable_notification: true,
-          inline_keyboard: [
-            [
-              {
-                text: "Редактировать",
-                callback_data: JSON.stringify({ type: "Edit Plan", chat_id }),
-              },
+      if (exist !== null && exist?.plan) {
+        const editKeyboard = {
+          reply_markup: {
+            disable_notification: true,
+            inline_keyboard: [
+              [
+                {
+                  text: "Редактировать",
+                  callback_data: JSON.stringify({ type: "Edit Plan", chat_id }),
+                },
+              ],
             ],
-          ],
-        },
-      };
+          },
+        };
 
-      const { message_id } = await bot.sendMessage(
-        chat_id,
-        "Ваш план \n" + exist?.plan,
-        editKeyboard,
-      );
-      await debt(msg.chat.id, match);
+        const { message_id } = await bot.sendMessage(
+            chat_id,
+            "Ваш план \n" + exist?.plan,
+            editKeyboard,
+        );
+        await debt(msg.chat.id, match);
 
-      const timer = setTimeout(
-        async () => {
-          // из-за того что не могу получить по id сообщение пришлось изворачиваться
-          try {
-            await bot.editMessageReplyMarkup(
-              { inline_keyboard: [] },
-              { chat_id, message_id },
-            );
-            await bot.sendMessage(chat_id, "Вы не изменили план");
-          } catch (e) {
-            console.log("Клавиатура уже была изменена");
-          }
-        },
-        1000 * 60 * 15,
-      );
+        const timer = setTimeout(
+            async () => {
+              // из-за того что не могу получить по id сообщение пришлось изворачиваться
+              try {
+                await bot.editMessageReplyMarkup(
+                    { inline_keyboard: [] },
+                    { chat_id, message_id },
+                );
+                await bot.sendMessage(chat_id, "Вы не изменили план");
+              } catch (e) {
+                console.log("Клавиатура уже была изменена");
+              }
+            },
+            1000 * 60 * 15,
+        );
+      } else {
+        await startPlan(chat_id);
+      }
     } else {
-      await startPlan(chat_id);
+      await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
     }
-  } else {
-    await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
+  } catch (e) {
+    console.log(e.message)
   }
+
 });
 
 const { fact, startFact } = require("./commands/task/fact");
 
 bot.onText(/\/fact\b/, async (msg, match) => {
-  if (await canSend(msg.chat.id)) {
-    const chat_id = msg.chat.id;
-    const exist = await getTaskForToday(chat_id, setUTC(new Date()));
-    if (exist === null || exist?.plan === null) {
-      await bot.sendMessage(chat_id, "Сначала введите план");
-    } else if (exist?.fact !== null) {
-      const editKeyboard = {
-        reply_markup: {
-          disable_notification: true,
-          inline_keyboard: [
-            [
-              {
-                text: "Редактировать",
-                callback_data: JSON.stringify({ type: "Edit fact", chat_id }),
-              },
+  try {
+    if (await canSend(msg.chat.id)) {
+      const chat_id = msg.chat.id;
+      const exist = await getTaskForToday(chat_id, setUTC(new Date()));
+      if (exist === null || exist?.plan === null) {
+        await bot.sendMessage(chat_id, "Сначала введите план");
+      } else if (exist?.fact !== null) {
+        const editKeyboard = {
+          reply_markup: {
+            disable_notification: true,
+            inline_keyboard: [
+              [
+                {
+                  text: "Редактировать",
+                  callback_data: JSON.stringify({ type: "Edit fact", chat_id }),
+                },
+              ],
             ],
-          ],
-        },
-      };
+          },
+        };
 
-      const { message_id } = await bot.sendMessage(
-        chat_id,
-        "Ваш факт \n" + exist?.fact,
-        editKeyboard,
-      );
+        const { message_id } = await bot.sendMessage(
+            chat_id,
+            "Ваш факт \n" + exist?.fact,
+            editKeyboard,
+        );
 
-      const timer = setTimeout(
-        async () => {
-          // из-за того что не могу получить по id сообщение пришлось изворачиваться
-          try {
-            await bot.editMessageReplyMarkup(
-              { inline_keyboard: [] },
-              { chat_id, message_id },
-            );
-            await bot.sendMessage(chat_id, "Вы не изменили факт");
-          } catch (e) {
-            console.log("Клавиатура уже была изменена");
-          }
-        },
-        1000 * 60 * 15,
-      );
+        const timer = setTimeout(
+            async () => {
+              // из-за того что не могу получить по id сообщение пришлось изворачиваться
+              try {
+                await bot.editMessageReplyMarkup(
+                    { inline_keyboard: [] },
+                    { chat_id, message_id },
+                );
+                await bot.sendMessage(chat_id, "Вы не изменили факт");
+              } catch (e) {
+                console.log("Клавиатура уже была изменена");
+              }
+            },
+            1000 * 60 * 15,
+        );
+      } else {
+        await startFact(chat_id);
+      }
     } else {
-      await startFact(chat_id);
+      await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
     }
-  } else {
-    await bot.sendMessage(msg.chat.id, "Вы не можете отправить команду");
+  } catch (e) {
+    console.log(e.message)
   }
+
 });
 
 // API
@@ -279,6 +314,7 @@ app.post("/web-time", async (req, res) => {
     return res.status(200).json({});
   } catch (e) {
     return res.status(500).json({});
+    console.log(e.message);
   }
 });
 
@@ -301,7 +337,8 @@ bot.on("callback_query", async function onCallbackQuery(callbackQuery) {
   try {
     await bot.answerCallbackQuery(callbackQuery.id, { cache_time: 0 });
   } catch (e) {
-    await bot.sendMessage(chat_id, "Ошибка попробуйте отправить запрос снова");
+    console.log(e.message)
+    // await bot.sendMessage(chat_id, "Ошибка попробуйте отправить запрос снова");
   }
 
   // создаем задачу на сегодня
@@ -310,10 +347,7 @@ bot.on("callback_query", async function onCallbackQuery(callbackQuery) {
   const regexp = new RegExp(`.*|${chat_id}`, "gmi");
 
   try {
-    await bot.editMessageReplyMarkup(
-      { inline_keyboard: [] },
-      { chat_id, message_id },
-    );
+    await bot.editMessageReplyMarkup({ inline_keyboard: [] }, { chat_id, message_id },);
 
     switch (type) {
       case "Enter Plan":
@@ -511,29 +545,40 @@ bot.on("callback_query", async function onCallbackQuery(callbackQuery) {
 
         const free = await freeDays.findOne({ where: { id: fid } });
 
-        const taskToday = await tasks.findOne({ where: { id: tid } });
-        if (taskToday !== null) {
-          const currentDate = new Date(free.from);
-          currentDate.setHours(0, 0, 0, 0);
+        console.log(tid);
+        console.log(undefined)
 
-          const taskDate = new Date(taskToday.date);
-          taskDate.setHours(0, 0, 0, 0);
-          console.log("selected");
-          console.log(currentDate.toString() == taskDate.toString());
-          console.log(`${currentDate} == ${taskDate}`);
+        let taskToday = null;
 
-          // если взятый день сегодняшний то работа заканчивается
-          // пользователь сможет заполнить факт как только взятые дни закончатся
-          // предполагается что пользователь введет факт а затем возьмет день
+        try {
+          taskToday = await getTaskForToday(id);
+        } catch (e) {
+          console.log("task for today not found")
+          taskToday = null;
+        }
 
-          if (taskDate.toString() === currentDate.toString()) {
-            if (taskToday?.plan === null) {
-              await taskToday.destroy();
-              console.log("deleted T");
-            }
-            freeUser.update({ status: false });
-            console.log("deleted U");
+
+
+        const fromDate = new Date(free.from);
+        fromDate.setHours(0, 0, 0, 0);
+
+        const currentDate = setUTC(new Date());
+        currentDate.setHours(0, 0, 0, 0);
+        console.log("selected");
+        console.log(fromDate.toString() == currentDate.toString());
+        console.log(`${fromDate} == ${currentDate}`);
+
+        // если взятый день сегодняшний то работа заканчивается
+        // пользователь сможет заполнить факт как только взятые дни закончатся
+        // предполагается что пользователь введет факт а затем возьмет день
+
+        if (currentDate.toString() === fromDate.toString()) {
+          if (taskToday !== null && taskToday?.plan === null) {
+            await taskToday.destroy();
+            console.log("deleted T");
           }
+          freeUser.update({ status: false });
+          console.log("deleted U");
         }
 
         await free.update({ status: true });
@@ -568,7 +613,7 @@ bot.on("callback_query", async function onCallbackQuery(callbackQuery) {
         break;
     }
   } catch (e) {
-    await bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
+    // await bot.sendMessage(chat_id, "Ошибка! Что-то пошло не так");
     await bot.sendMessage(chat_id, e.message);
   }
 });
@@ -734,10 +779,10 @@ async function setUserStatus() {
                 console.log("Клавиатура уже была изменена");
               }
             },
-            1000 * 60 * 60 * 6,
+            1000 * 60 * 60 * 10,
           );
         },
-        1000,
+        1000*60*60*12,
       );
     } else {
       console.log("nothing still not working")
@@ -756,8 +801,27 @@ async function setUserStatus() {
 // каждый день запускает функцию проверки состаяния пользователя
 // ищет подтвержденые заявки о нерабочих днях и меняет состояние пользователю
 // после ставит таймеры все работникам согласно их рабочему графику
-const changeStatus = new CronJob("30 48 1 * * 1-5", async () => {
-  await setUserStatus();
-  await startCron();
+const changeStatus = new CronJob("00 30 2 * * 1-5", async () => {
+  try {
+    await setUserStatus();
+    await startCron();
+  } catch (e) {
+    console.log(e.message);
+  }
+
 });
 changeStatus.start();
+
+bot.on("polling_error", err => console.log(err.data.error.message));
+
+// bot.on('error',(error)=>{
+//   console.log(error);
+// })
+//
+// bot.on('ETELEGRAM',(error)=>{
+//   console.log(error);
+// })
+//
+// bot.on('TelegramError',(error)=>{
+//   console.log(error);
+// })
