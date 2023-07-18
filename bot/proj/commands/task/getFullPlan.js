@@ -7,12 +7,12 @@ const { bot } = require('../../index')
 
 async function getFullPlan (
   msg,
-  start = setUTC(new Date(0)),
+  start = new Date(0),
   end = setUTC(new Date())
 ) {
   const chat_id = msg.chat.id
-  start.setHours(0, 0, 0, 0)
-  end.setHours(0,0,0,0);
+  start.setUTCHours(0, 0, 0, 0)
+  end.setUTCHours(0,0,0,0);
 
   const task = await tasks.findAll({
     where: {
@@ -23,8 +23,15 @@ async function getFullPlan (
     }
   })
 
+  const options = {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  };
+
   const slash = '-'.repeat(45)
-  let text = `Ваши планы/факты с ${start} по ${end}\n${slash}\n`
+  let text = `Ваши планы/факты с ${start.toLocaleDateString("en-GB", options)
+      .replaceAll("/", ".")} по ${end.toLocaleDateString("en-GB", options).replaceAll("/", ".")}\n${slash}\n`
 
   if (task.length === 0) {
     await bot.sendMessage(chat_id, 'У вас нету задач')
@@ -32,9 +39,9 @@ async function getFullPlan (
 
   task.map(async (task) => {
     if (task?.fact !== null && task?.plan !== null) {
-      text += `${task.date}\n\nПлан\n${task.plan}\n\nФакт\n${task.fact}\nОтработал ${task.hours}\n${slash}\n`
+      text += `${task.date} отработал ${task.hours}\nПлан:\n${task.plan}\n\nФакт:\n${task.fact}\n${slash}\n`
     } else if (task?.fact !== null) {
-      text += `${task.date}\n\nПлан\n${task.plan}\n${slash}\n`
+      text += `${task.date}\nПлан:\n${task.plan}\n${slash}\n`
     } else {
       text += `${task.date}\nНе заполнено план и факт\n${slash}\n`
     }
