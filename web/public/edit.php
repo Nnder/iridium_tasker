@@ -30,10 +30,15 @@
           <div class="col-auto mx-auto">
             <label for="access_level">Уровень доступа</label>
             <select class="form-select" name="access_level" id="access_level">
-              <option value="1" name="adm-opt">Admin</option>
-              <option value="2" name="sup-adm-opt">SuperAdmin</option>
+              <option value="1" name="adm-opt">Пользователь</option>
+              <option value="2" name="sup-adm-opt">ТимЛид</option>
+              <option value="3" name="sup-adm-opt">СТО</option>
             </select>            
-          </div>          
+          </div>              
+          <div class="col-auto mx-auto">
+            <label for="team">Часы работы</label>
+            <input type="text" class="form-control" name="work_time" id="work_time" value="<?php echo(trim($employee[6])) ?>">
+          </div>
           <div class="col-auto mx-auto">
             <label for="active"></label>
             <input <?php if ($employee[7] == true) { ?>checked<?php }?> style="margin-top:30%" type="checkbox" class="form-check-input" id="active" name="active" value="true">

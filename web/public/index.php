@@ -14,7 +14,7 @@ include 'php.php';
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css?v=<?= time(); ?>">
   <link rel="stylesheet" href="airdatepicker/air-datepicker.css?v=<?= time(); ?>">
   <link rel="stylesheet" href="styles.css?v=<?= time(); ?>">
-</head>
+  </head>
 <?php
   if (!empty($_SESSION['auth'])) {
     access($connection);
@@ -203,10 +203,16 @@ include 'php.php';
             <label class='' style="color:red"></label>
           </div>
           <div class="col-auto mx-auto">
+            <label for="add_post">Часы работы</label>
+            <input class="form-control" type="text" name="work_time" id="work_time">
+            <label class='' style="color:red"></label>
+          </div>
+          <div class="col-auto mx-auto">
             <label for="access_level">Уровень доступа</label>
             <select class="form-select" name="add_access_level" id="add_access_level">
-              <option value="1" name="access_level">Admin</option>
-              <option value="2" name="access_level">SuperAdmin</option>
+              <option value="1" name="access_level">Пользователь</option>
+              <option value="2" name="access_level">ТимЛид</option>
+              <option value="3" name="access_level">СТО</option>
             </select>
             <label class='' style="color:red" ></label>
           </div>
@@ -260,5 +266,14 @@ include 'php.php';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js?v=<?= time(); ?>"></script>
 <script src="airdatepicker/air-datepicker.js?v=<?= time(); ?>"></script>
 <script src="scripts.js?v=<?= time(); ?>"></script>
+<script src="jquery-1.12.4.min.js"></script>
+<script src="bootstrap.min.js"></script>
+<script src="jquery.maskedinput.min.js"></script>
+
+<script>
+  $(function(){
+    $("#work_time").mask("99:99-99:99");
+  });            
+</script>
 </body>
 </html>

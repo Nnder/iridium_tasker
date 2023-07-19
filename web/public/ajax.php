@@ -9,6 +9,7 @@ if (isset($_GET['button-form']) && $_GET['button-form'] == 'button-add' && !empt
   $add_number_phone = '7'.pg_escape_string($_GET['add_number_phone']);
   $add_full_name = pg_escape_string($_GET['add_full_name']);
   $add_post = pg_escape_string($_GET['add_post']);
+  $work_time = pg_escape_string($_GET['work_time']);
   $sql = "SELECT phone FROM users WHERE phone='$add_number_phone'";
   $res = pg_query($connection, $sql);
   $row = pg_fetch_array($res);
@@ -20,7 +21,7 @@ if (isset($_GET['button-form']) && $_GET['button-form'] == 'button-add' && !empt
     echo "$('.number-error').text('Неверный формат номера');";
   }
   else{
-    $sql ="INSERT INTO users (phone, fio, profession, team, role, status) VALUES ('".$add_number_phone."', '".$add_full_name."', '".$add_post."', '".$_GET['add_team']."', '".$_GET['add_access_level']."', true)";
+    $sql ="INSERT INTO users (phone, fio, profession, team, role, work_time, status) VALUES ('".$add_number_phone."', '".$add_full_name."', '".$add_post."', '".$_GET['add_team']."', '".$_GET['add_access_level']."', '".$work_time."', true)";
     pg_query($connection, $sql);
     echo "table_update(); $('#modal_add').modal('hide');";
   }
@@ -33,15 +34,17 @@ if (isset($_GET['button-form']) && $_GET['button-form'] == 'button-save' && !emp
   $post = pg_escape_string($_GET['post']);
   $number_phone = mb_substr($_GET['number_phone'],1,11);
   $team = $_GET['team'];
+  $work_time = pg_escape_string($_GET['work_time']);
   $chatid = pg_escape_string($_GET['chat_id']);
-  if (isset($_GET['active']) && $_GET['active'] == "true"){
+  if (isset($_GET['active']) && $_GET['active'] == "true") {
     $active = true;
   }
   else{
     $active = false;
   }
-  $sql ="UPDATE users SET fio='".$full_name."', profession='".$post."', team='".$team."', role='".$_GET['access_level']."', status='".$active."', chat_id='".$chatid."' WHERE phone = '".$number_phone."'";
+  $sql ="UPDATE users SET fio='".$full_name."', profession='".$post."', team='".$team."', role='".$_GET['access_level']."', status='".$active."', chat_id='".$chatid."', work_time='".$work_time."' WHERE phone = '".$number_phone."'";
   pg_query($connection, $sql);
+  echo "table_update(); $('#modal_add').modal('hide');";
 }
 
 
@@ -366,11 +369,10 @@ if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED
 	else {
 		$fact = "'".$_POST['factedit']."'";
 	}
-	// if (!isset($_POST['planedit'])) {
-		// pg_query($connection, "UPDATE public.reports SET tasks='".$_POST['planedit']."', fact='".$_POST['factedit']."', hours='".$_POST['hoursedit']."', worked='".$_POST['stats']."' WHERE chat_id='".$chatid['chat_id']."' AND date='".$_POST['day']."'");
-	// }
-	pg_query($connection, "UPDATE public.freedays, public.tasks SET plan=$plan, fact=$fact, hours='".$_POST['hoursedit']."', tasks.cause='".$_POST['stats']."' WHERE chat_id='".$chatid['chat_id']."' AND tasks.date='".$_POST['day']."'");
-	echo "<script>$('#report').show();calendar_update();var div = $( '#DailyReport' );div.remove();$('.air-datepicker-cell').removeClass('-selected-');</script>";
+	if (isset($_POST['submit'])) {
+    pg_query($connection, "UPDATE public.tasks SET plan=$plan, fact=$fact, hours='".$_POST['hoursedit']."', WHERE chat_id='".$chatid['chat_id']."' AND tasks.date='".$_POST['day']."'");
+  }
+	
 }
 
 //.......Команды (редактирование)..............
