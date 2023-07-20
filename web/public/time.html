@@ -162,7 +162,7 @@
 
             const result = `${time.getHours()}:${ time.getMinutes()}`
 
-            alert(result)
+            // alert(result)
 
             let data = {
                 from : from.value,
@@ -173,7 +173,7 @@
                 mid,
             }
 
-            const url = 'https://ec31-46-48-25-143.ngrok-free.app/web-time';
+            const url = `${link.origin}/api/web-time`;
 
             let response = await fetch(url, {
                 method: 'POST',

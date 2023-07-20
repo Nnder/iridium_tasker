@@ -5,28 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2c526d9c-650a-4b5a-a167-ffd07637fccc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/web/public/dist/air-datepicker.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/public/dist/grudus-timepicker.es5.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/public/dist/logo.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/public/dist/timepicker.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/callback_query.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/notWork/notWork.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/notWork/notWork.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/start.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/start.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/addHours.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/addHours.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/debt.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/debt.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/fact.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/fact.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/getFullPlan.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/getFullPlan.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/getTask.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/getTask.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/task/plan.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/task/plan.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/user/canSend.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/user/canSend.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/commands/user/info.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/commands/user/info.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/cron/jobs.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/cron/jobs.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/database/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/database/db.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/database/models.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/database/models.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/proj/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/bot/proj/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/Readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/docker/nginx/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/web/docker/nginx/nginx.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/public/free.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/public/free.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/public/table.php" beforeDir="false" afterPath="$PROJECT_DIR$/web/public/table.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/public/time.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/public/time.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -48,26 +32,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
-    "javascript.nodejs.core.library.configured.version": "10.19.0",
-    "javascript.nodejs.core.library.typings.version": "10.17.60",
-    "last_opened_file_path": "/home/ross/WebstormProjects/iridium_bot/web/public/dist",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "configurable.group.language",
-    "ts.external.directory.path": "/home/ross/Downloads/WebStorm-231.8770.64/plugins/javascript-impl/jsLanguageServicesImpl/external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;10.19.0&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;10.17.60&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ross/WebstormProjects/iridium_bot/web/public/dist&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.language&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/ross/Downloads/WebStorm-231.8770.64/plugins/javascript-impl/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/web/public/dist" />
@@ -111,7 +95,8 @@
       <workItem from="1689538354548" duration="904000" />
       <workItem from="1689611016017" duration="18079000" />
       <workItem from="1689677834666" duration="306000" />
-      <workItem from="1689682924413" duration="18979000" />
+      <workItem from="1689682924413" duration="25583000" />
+      <workItem from="1689832623543" duration="6888000" />
     </task>
     <servers />
   </component>

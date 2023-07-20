@@ -45,13 +45,14 @@
             $query .= " ORDER BY fio ASC";
         }
         $rs = pg_query($connection, $query) or die("wait what\n");
+        $NonActive='';
         while ($row = pg_fetch_array($rs)) {
-            if ($row[7] == false){
-                $NonActive='NonActive';
-            }
-            else {
-                $NonActive='';
-            }
+//             if ($row[7] == false){
+//                 $NonActive='NonActive';
+//             }
+//             else {
+//                 $NonActive='';
+//             }
             if (isset($_GET['selected']) && $row[0]==$_GET['selected']){
                 $selected='row_selected';
             }
