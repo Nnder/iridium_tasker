@@ -62,7 +62,7 @@ const tasks = sequelize.define('tasks', {
   },
   // дата создания задача
   date: {
-    type: DataTypes.DATE
+    type: DataTypes.DATEONLY
   },
   hours: {
     type: DataTypes.TIME
@@ -94,12 +94,13 @@ const freeDays = sequelize.define('freedays', {
     type: DataTypes.TEXT
   },
   // дата начала
+  // в postgresql есть тип range
   from: {
-    type: DataTypes.DATE
+    type: DataTypes.DATEONLY
   },
   // дата окончания
   to: {
-    type: DataTypes.DATE
+    type: DataTypes.DATEONLY
   }
 })
 module.exports.freeDays = freeDays

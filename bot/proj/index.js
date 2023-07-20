@@ -565,12 +565,12 @@ bot.on('callback_query', async function onCallbackQuery (callbackQuery) {
         const currentDate = setUTC(new Date())
         currentDate.setHours(0, 0, 0, 0)
         console.log('selected')
-        console.log(fromDate.toString() == currentDate.toString())
+        console.log(fromDate.toString() === currentDate.toString())
         console.log(`${fromDate} == ${currentDate}`)
 
         // если взятый день сегодняшний то работа заканчивается
         // пользователь сможет заполнить факт как только взятые дни закончатся
-        // предполагается что пользователь введет факт а затем возьмет день
+        // предполагается что пользователь введет факт, а затем возьмет день
 
         if (currentDate.toString() === fromDate.toString()) {
           if (taskToday !== null && taskToday?.plan === null) {
@@ -792,9 +792,7 @@ async function setUserStatus () {
     }
 
     // если наступил день больничного, отпуск и тд то статус в false и последующие дни тоже в false кроме последнего
-    // в последний отправляем сообщение и справшиваем как дела и будет ли брать еще больничный
-
-    // 00 -> создаю на часов 12 на весь день 12
+    // в последний отправляем сообщение и спрашиваем как дела и будет ли брать еще больничный
   })
 }
 

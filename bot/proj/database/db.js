@@ -13,7 +13,20 @@ const sequelize = new Sequelize(
   }
 )
 
-// sequelize.sync();
+// const sequelize = new Sequelize(
+//     // 'postgres://grimksi:4QbYXDPrdy9k@ep-wispy-heart-761564.eu-central-1.aws.neon.tech/neondb?ssl=true',
+//     'postgresql://postgres:ub9hW36pqEI8jDV0WR7T@containers-us-west-31.railway.app:7074/railway',
+//     {
+//         host: 'containers-us-west-31.railway.app',
+//         port: '7074',
+//         dialect: 'postgres',
+//         define: {
+//             timestamps: false
+//         }
+//     }
+// )
+
+sequelize.sync();
 module.exports = sequelize
 
 // (async () => {
