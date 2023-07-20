@@ -220,7 +220,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-app.post('/web-data', async (req, res) => {
+app.post('/api/web-data', async (req, res) => {
   console.log(req.body)
   try {
     const { cause, msg, from, to, uid, mid, tid } = req.body
@@ -289,7 +289,7 @@ app.post('/web-data', async (req, res) => {
   }
 })
 
-app.post('/web-time', async (req, res) => {
+app.post('/api/web-time', async (req, res) => {
   console.log(req.body)
   try {
     const { from, to, result, user_id, task_id, mid } = req.body
@@ -348,6 +348,8 @@ bot.on('callback_query', async function onCallbackQuery (callbackQuery) {
       { chat_id, message_id }
     )
 
+
+
     switch (type) {
       case 'Enter Plan':
         await bot.sendMessage(chat_id, 'Введите план')
@@ -400,7 +402,7 @@ bot.on('callback_query', async function onCallbackQuery (callbackQuery) {
 
       case 'Not Work':
         await bot.sendMessage(chat_id, 'Не работаю')
-        await notWork(msg, await getTaskForToday(chat_id, currentDate))
+        await notWork(msg, await getTaskForToday(chat_id))
         break
 
         // debt
@@ -534,6 +536,7 @@ bot.on('callback_query', async function onCallbackQuery (callbackQuery) {
         break
 
       // API
+      //  C - Confirm подтверждаем больничный, отпуск и тд
       case 'C':
         const freeUser = await users.findOne({ where: { chat_id: id } })
         const lead = await users.findOne({
@@ -604,6 +607,7 @@ bot.on('callback_query', async function onCallbackQuery (callbackQuery) {
         await bot.sendMessage(lead.chat_id, 'СТО подтвердил запрос\n' + text)
 
         break
+      // R - Refuse отказываем в больничном, отпуске и тд
       case 'R':
         await bot.sendMessage(chat_id, 'Вы отклонили запрос')
         await bot.sendMessage(id, 'Запрос отклонен')
@@ -762,6 +766,7 @@ async function setUserStatus () {
           const timer = setTimeout(
             async () => {
               // из-за того что не могу получить по id сообщение пришлось изворачиваться
+              // если клавиатура уже была изменена то кинет ошибку об уже измененной клавиатуре
               try {
                 await bot.editMessageReplyMarkup(
                   { inline_keyboard: [] },
@@ -774,9 +779,10 @@ async function setUserStatus () {
                 console.log('Клавиатура уже была изменена')
               }
             },
-            1000 * 60 * 60 * 10
+            1000 * 60 * 60 * 12
           )
         },
+          // через сколько времени с начала дня отправлять уведомление о продлении больничного
         1000 * 60 * 60 * 12
       )
     } else {
@@ -785,17 +791,17 @@ async function setUserStatus () {
       user.update({ status: false })
     }
 
-    // если наступил начальны день то статус в false и последующие дни тоже в false кроме последнего
-    // можно
+    // если наступил день больничного, отпуск и тд то статус в false и последующие дни тоже в false кроме последнего
+    // в последний отправляем сообщение и справшиваем как дела и будет ли брать еще больничный
 
     // 00 -> создаю на часов 12 на весь день 12
   })
 }
 
-// каждый день запускает функцию проверки состаяния пользователя
-// ищет подтвержденые заявки о нерабочих днях и меняет состояние пользователю
-// после ставит таймеры все работникам согласно их рабочему графику
-const changeStatus = new CronJob('00 30 00 * * 1-5', async () => {
+// каждый день запускает функцию проверки состояния пользователя
+// ищет подтвержденные заявки о нерабочих днях и меняет состояние пользователю
+// после ставит таймеры всем работникам согласно их рабочему графику
+const changeStatus = new CronJob('00 10 00 * * 1-5', async () => {
   try {
     await setUserStatus()
     await startCron()
@@ -806,15 +812,3 @@ const changeStatus = new CronJob('00 30 00 * * 1-5', async () => {
 changeStatus.start()
 
 bot.on('polling_error', (err) => console.log(err.data.error.message))
-
-// bot.on('error',(error)=>{
-//   console.log(error);
-// })
-//
-// bot.on('ETELEGRAM',(error)=>{
-//   console.log(error);
-// })
-//
-// bot.on('TelegramError',(error)=>{
-//   console.log(error);
-// })

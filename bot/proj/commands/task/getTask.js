@@ -11,7 +11,7 @@ function setUTC (date) {
   return date
 }
 
-async function getTaskForToday (chat_id, date) {
+async function getTaskForToday (chat_id, date = setUTC(new Date())) {
   const options = { timeZone: 'Asia/Yekaterinburg' }
   const formattedDate = date.toLocaleString('en-US', options)
   const parsed = Date.parse(formattedDate)
